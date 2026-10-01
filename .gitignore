@@ -1,0 +1,13 @@
+.env
+.env.local
+backups/
+uploads/
+*.log
+.DS_Store
+Thumbs.db
+node_modules/
+.next/
+target/
+tsconfig.tsbuildinfo
+playwright-report/
+test-results/
