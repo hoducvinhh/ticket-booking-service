@@ -1,0 +1,8 @@
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://postgres:5432/ticketing}
+  data:
+    redis:
+      host: ${REDIS_HOST:redis}
+  rabbitmq:
+    host: ${RABBITMQ_HOST:rabbitmq}
