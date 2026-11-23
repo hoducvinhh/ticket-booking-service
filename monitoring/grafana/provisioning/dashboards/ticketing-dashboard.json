@@ -1,0 +1,67 @@
+{
+  "title": "Event Ticketing & Flash Sale Platform",
+  "uid": "ticketing-platform-overview",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "10s",
+  "panels": [
+    {
+      "id": 1,
+      "title": "HTTP Requests / sec",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 0 },
+      "targets": [
+        { "expr": "sum(rate(http_server_requests_seconds_count[1m]))", "legendFormat": "RPS" }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "API p95 Latency (seconds)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 0 },
+      "targets": [
+        { "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket[1m])) by (le))", "legendFormat": "p95" }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "HTTP 5xx Error Rate",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 0 },
+      "targets": [
+        { "expr": "sum(rate(http_server_requests_seconds_count{status=~\"5..\"}[1m]))", "legendFormat": "5xx/s" }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "HikariCP Active DB Connections",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 8 },
+      "targets": [
+        { "expr": "hikaricp_connections_active", "legendFormat": "Active" },
+        { "expr": "hikaricp_connections_pending", "legendFormat": "Pending" }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Business Backlogs (Expiration, Waiting Room, Outbox)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 8 },
+      "targets": [
+        { "expr": "ticketing_reservation_expiration_backlog", "legendFormat": "Expiration Backlog" },
+        { "expr": "ticketing_waitingroom_backlog", "legendFormat": "Waiting Room Queue" },
+        { "expr": "ticketing_outbox_failed", "legendFormat": "Failed Outbox Jobs" }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Payment & Webhook Failures",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 8 },
+      "targets": [
+        { "expr": "ticketing_webhook_failures", "legendFormat": "Failed Webhooks" },
+        { "expr": "ticketing_payment_failures", "legendFormat": "Failed Payments" }
+      ]
+    }
+  ]
+}
