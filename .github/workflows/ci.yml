@@ -1,0 +1,63 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend-test:
+    name: Backend Unit & Testcontainers Integration Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: maven
+      - name: Run Backend Tests (Unit + Concurrency + Testcontainers)
+        working-directory: ./ticket-booking-service
+        run: ./mvnw test -B
+
+  frontend-check:
+    name: Frontend Lint, Type Check & Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: ./ticket-booking-fe/package-lock.json
+      - name: Install, Lint, Type Check & Build
+        working-directory: ./ticket-booking-fe
+        run: |
+          npm ci
+          npm run lint
+          npx tsc --noEmit
+          npm run build
+
+  docker-build-smoke:
+    name: Build Docker Compose Stack & Smoke Test
+    needs: [backend-test, frontend-check]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build & Boot Full Docker Compose Stack
+        run: |
+          cp .env.example .env
+          docker compose up -d --build
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:8080/actuator/health | grep -q UP; then
+              echo "Backend is UP"
+              break
+            fi
+            sleep 5
+          done
+          curl -sf http://localhost:8080/actuator/health | grep -q UP
+          curl -sf http://localhost:3000 >/dev/null
+      - name: Tear down
+        if: always()
+        run: docker compose down -v
