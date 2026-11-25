@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { BarChart3, Building2, CalendarPlus, CheckCircle, PlusCircle, Ticket, UserPlus } from "lucide-react";
 import { api, extractErrorMessage } from "@/lib/api";
-import { formatCurrency, formatDateTime } from "@/lib/utils";
+import { formatCurrency, formatDateTime, formatEventStatus } from "@/lib/utils";
 import { ApiEnvelope, EventItem, PageEnvelope, SeatMapResponse, VenueItem } from "@/types";
 import { Badge, Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -45,7 +45,7 @@ export default function OrganizerDashboardPage() {
   const [rowLabel, setRowLabel] = useState("A");
   const [seatCount, setSeatCount] = useState(10);
 
-  const [gaName, setGaName] = useState("GA Standing");
+  const [gaName, setGaName] = useState("Vé Đứng Tiêu Chuẩn");
   const [gaPrice, setGaPrice] = useState(500000);
   const [gaQuantity, setGaQuantity] = useState(100);
   const [staffUserId, setStaffUserId] = useState("");
@@ -95,7 +95,7 @@ export default function OrganizerDashboardPage() {
       });
       setEventVenueId(res.data.data.id);
       setVenueName("");
-      setFeedback(`Venue "${res.data.data.name}" created.`);
+      setFeedback(`Đã tạo địa điểm "${res.data.data.name}".`);
       refetchVenues();
     } catch (err) {
       setFeedback(extractErrorMessage(err));
@@ -111,7 +111,7 @@ export default function OrganizerDashboardPage() {
         venueId: eventVenueId || venues[0]?.id,
         name: eventName,
         category: eventCategory,
-        description: "Live high-concurrency ticketing event",
+        description: "Sự kiện trực tiếp mở bán qua hệ thống FlashTix",
         startTime: new Date(now + 7 * 86400_000).toISOString(),
         endTime: new Date(now + 8 * 86400_000).toISOString(),
         salesStartTime: new Date(now - 3600_000).toISOString(),
@@ -122,7 +122,7 @@ export default function OrganizerDashboardPage() {
       });
       setSelectedEventId(res.data.data.id);
       setEventName("");
-      setFeedback(`Event "${res.data.data.name}" created (DRAFT).`);
+      setFeedback(`Đã tạo sự kiện "${res.data.data.name}" ở trạng thái Bản nháp.`);
       refetchEvents();
     } catch (err) {
       setFeedback(extractErrorMessage(err));
@@ -132,7 +132,7 @@ export default function OrganizerDashboardPage() {
   const handleCreateSectionAndSeats = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedEventId) {
-      setFeedback("Select an event first.");
+      setFeedback("Vui lòng chọn một sự kiện trước.");
       return;
     }
     const ev = events.find((x) => x.id === selectedEventId);
@@ -152,7 +152,7 @@ export default function OrganizerDashboardPage() {
         seatNumber: idx + 1,
       }));
       await api.post(`/organizer/sections/${secRes.data.data.id}/seats`, { seats });
-      setFeedback(`Created section ${sectionName} with ${seatCount} seats.`);
+      setFeedback(`Đã thêm khu vực "${sectionName}" với ${seatCount} ghế.`);
       refetchEvents();
       refetchSeatMap();
     } catch (err) {
@@ -163,7 +163,7 @@ export default function OrganizerDashboardPage() {
   const handleCreateTicketType = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedEventId) {
-      setFeedback("Select an event first.");
+      setFeedback("Vui lòng chọn một sự kiện trước.");
       return;
     }
     setFeedback("");
@@ -174,7 +174,7 @@ export default function OrganizerDashboardPage() {
         totalQuantity: gaQuantity,
         saleMode: "GENERAL_ADMISSION",
       });
-      setFeedback(`Created General Admission tier "${gaName}".`);
+      setFeedback(`Đã thêm hạng vé tự do "${gaName}".`);
     } catch (err) {
       setFeedback(extractErrorMessage(err));
     }
@@ -187,7 +187,7 @@ export default function OrganizerDashboardPage() {
     try {
       await api.post(`/organizer/events/${selectedEventId}/staff`, { staffId: staffUserId.trim() });
       setStaffUserId("");
-      setFeedback("Check-in staff assigned to event.");
+      setFeedback("Đã phân công nhân viên soát vé cho sự kiện.");
     } catch (err) {
       setFeedback(extractErrorMessage(err));
     }
@@ -207,7 +207,7 @@ export default function OrganizerDashboardPage() {
   const handlePublish = async (id: string) => {
     try {
       await api.post(`/organizer/events/${id}/publish`);
-      setFeedback("Event published and open for sales.");
+      setFeedback("Sự kiện đã được phát hành và mở bán vé.");
       refetchEvents();
     } catch (err) {
       setFeedback(extractErrorMessage(err));
@@ -217,7 +217,7 @@ export default function OrganizerDashboardPage() {
   const handleHide = async (id: string) => {
     try {
       await api.post(`/organizer/events/${id}/hide`);
-      setFeedback("Event hidden (returned to DRAFT).");
+      setFeedback("Đã ẩn sự kiện về trạng thái Bản nháp.");
       refetchEvents();
     } catch (err) {
       setFeedback(extractErrorMessage(err));
@@ -227,7 +227,7 @@ export default function OrganizerDashboardPage() {
   const handleCancel = async (id: string) => {
     try {
       await api.post(`/organizer/events/${id}/cancel`);
-      setFeedback("Event cancelled and paid orders queued for refund.");
+      setFeedback("Đã hủy sự kiện và chuyển các đơn đã thanh toán sang chờ hoàn tiền.");
       refetchEvents();
     } catch (err) {
       setFeedback(extractErrorMessage(err));
@@ -237,8 +237,8 @@ export default function OrganizerDashboardPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold">Organizer Platform</h1>
-        <p className="text-sm text-slate-500">Manage venues, events, seating, general admission, staff, and analytics.</p>
+        <h1 className="text-2xl font-bold">Bảng điều khiển Ban tổ chức</h1>
+        <p className="text-sm text-slate-500">Quản lý địa điểm, sự kiện, sơ đồ ghế, vé tự do, nhân sự soát vé và báo cáo doanh thu.</p>
       </div>
 
       {feedback && (
@@ -252,14 +252,14 @@ export default function OrganizerDashboardPage() {
         <Card>
           <CardHeader className="flex items-center gap-2">
             <Building2 className="h-5 w-5 text-indigo-600" />
-            <h2 className="font-semibold">1. Create Venue</h2>
+            <h2 className="font-semibold">1. Tạo địa điểm (Venue)</h2>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleCreateVenue} className="space-y-3 text-sm">
-              <input required placeholder="Venue Name" value={venueName} onChange={(e) => setVenueName(e.target.value)} className="w-full rounded-lg border px-3 py-2" />
-              <input placeholder="Address" value={venueAddr} onChange={(e) => setVenueAddr(e.target.value)} className="w-full rounded-lg border px-3 py-2" />
-              <input type="number" min={1} value={venueCap} onChange={(e) => setVenueCap(Number(e.target.value))} className="w-full rounded-lg border px-3 py-2" />
-              <Button type="submit" className="w-full">Create Venue</Button>
+              <input required placeholder="Tên địa điểm" value={venueName} onChange={(e) => setVenueName(e.target.value)} className="w-full rounded-lg border px-3 py-2" />
+              <input placeholder="Địa chỉ" value={venueAddr} onChange={(e) => setVenueAddr(e.target.value)} className="w-full rounded-lg border px-3 py-2" />
+              <input type="number" min={1} placeholder="Sức chứa" value={venueCap} onChange={(e) => setVenueCap(Number(e.target.value))} className="w-full rounded-lg border px-3 py-2" />
+              <Button type="submit" className="w-full">Tạo địa điểm</Button>
             </form>
           </CardContent>
         </Card>
@@ -267,7 +267,7 @@ export default function OrganizerDashboardPage() {
         <Card>
           <CardHeader className="flex items-center gap-2">
             <CalendarPlus className="h-5 w-5 text-indigo-600" />
-            <h2 className="font-semibold">2. Create Event</h2>
+            <h2 className="font-semibold">2. Tạo sự kiện mới</h2>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleCreateEvent} className="space-y-3 text-sm">
@@ -280,17 +280,18 @@ export default function OrganizerDashboardPage() {
                   <option key={v.id} value={v.id}>{v.name}</option>
                 ))}
               </select>
-              <input required placeholder="Event Name" value={eventName} onChange={(e) => setEventName(e.target.value)} className="w-full rounded-lg border px-3 py-2" />
+              <input required placeholder="Tên sự kiện" value={eventName} onChange={(e) => setEventName(e.target.value)} className="w-full rounded-lg border px-3 py-2" />
               <select value={eventCategory} onChange={(e) => setEventCategory(e.target.value)} className="w-full rounded-lg border px-3 py-2">
-                <option value="Music">Music</option>
-                <option value="Tech">Tech</option>
-                <option value="Sports">Sports</option>
+                <option value="Music">Âm nhạc &amp; Concert</option>
+                <option value="Tech">Công nghệ &amp; Hội thảo</option>
+                <option value="Sports">Thể thao</option>
+                <option value="Theater">Nghệ thuật &amp; Sân khấu</option>
               </select>
               <label className="flex items-center gap-2">
                 <input type="checkbox" checked={waitingRoom} onChange={(e) => setWaitingRoom(e.target.checked)} />
-                <span>Enable Virtual Waiting Room</span>
+                <span>Bật phòng chờ ảo (Flash Sale)</span>
               </label>
-              <Button type="submit" className="w-full" disabled={venues.length === 0}>Create Event</Button>
+              <Button type="submit" className="w-full" disabled={venues.length === 0}>Tạo sự kiện</Button>
             </form>
           </CardContent>
         </Card>
@@ -298,23 +299,23 @@ export default function OrganizerDashboardPage() {
         <Card>
           <CardHeader className="flex items-center gap-2">
             <PlusCircle className="h-5 w-5 text-indigo-600" />
-            <h2 className="font-semibold">3. Add Section & Seats</h2>
+            <h2 className="font-semibold">3. Thêm khu vực &amp; Ghế ngồi</h2>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleCreateSectionAndSeats} className="space-y-3 text-sm">
               <select value={selectedEventId} onChange={(e) => setSelectedEventId(e.target.value)} className="w-full rounded-lg border px-3 py-2">
-                <option value="">Select Event...</option>
+                <option value="">Chọn sự kiện...</option>
                 {events.map((ev) => (
                   <option key={ev.id} value={ev.id}>{ev.name}</option>
                 ))}
               </select>
-              <input required placeholder="Section Name (e.g. VIP)" value={sectionName} onChange={(e) => setSectionName(e.target.value)} className="w-full rounded-lg border px-3 py-2" />
-              <input type="number" min={0} placeholder="Price (VND)" value={sectionPrice} onChange={(e) => setSectionPrice(Number(e.target.value))} className="w-full rounded-lg border px-3 py-2" />
+              <input required placeholder="Tên khu vực (VD: Khu VIP)" value={sectionName} onChange={(e) => setSectionName(e.target.value)} className="w-full rounded-lg border px-3 py-2" />
+              <input type="number" min={0} placeholder="Giá vé (VND)" value={sectionPrice} onChange={(e) => setSectionPrice(Number(e.target.value))} className="w-full rounded-lg border px-3 py-2" />
               <div className="grid grid-cols-2 gap-2">
-                <input required placeholder="Row (A)" value={rowLabel} onChange={(e) => setRowLabel(e.target.value)} className="rounded-lg border px-3 py-2" />
-                <input type="number" min={1} max={100} value={seatCount} onChange={(e) => setSeatCount(Number(e.target.value))} className="rounded-lg border px-3 py-2" />
+                <input required placeholder="Ký hiệu hàng (A)" value={rowLabel} onChange={(e) => setRowLabel(e.target.value)} className="rounded-lg border px-3 py-2" />
+                <input type="number" min={1} max={100} placeholder="Số ghế" value={seatCount} onChange={(e) => setSeatCount(Number(e.target.value))} className="rounded-lg border px-3 py-2" />
               </div>
-              <Button type="submit" className="w-full">Generate Seats</Button>
+              <Button type="submit" className="w-full">Khởi tạo sơ đồ ghế</Button>
             </form>
           </CardContent>
         </Card>
@@ -324,14 +325,14 @@ export default function OrganizerDashboardPage() {
         <Card>
           <CardHeader className="flex items-center gap-2">
             <Ticket className="h-5 w-5 text-indigo-600" />
-            <h2 className="font-semibold">Add General Admission Ticket Tier</h2>
+            <h2 className="font-semibold">Thêm hạng vé tự do (General Admission)</h2>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleCreateTicketType} className="grid gap-3 text-sm sm:grid-cols-3">
-              <input required placeholder="Tier Name" value={gaName} onChange={(e) => setGaName(e.target.value)} className="rounded-lg border px-3 py-2" />
-              <input type="number" min={0} placeholder="Price" value={gaPrice} onChange={(e) => setGaPrice(Number(e.target.value))} className="rounded-lg border px-3 py-2" />
-              <input type="number" min={1} placeholder="Qty" value={gaQuantity} onChange={(e) => setGaQuantity(Number(e.target.value))} className="rounded-lg border px-3 py-2" />
-              <Button type="submit" className="sm:col-span-3" disabled={!selectedEventId}>Create GA Ticket Tier</Button>
+              <input required placeholder="Tên hạng vé" value={gaName} onChange={(e) => setGaName(e.target.value)} className="rounded-lg border px-3 py-2" />
+              <input type="number" min={0} placeholder="Giá vé" value={gaPrice} onChange={(e) => setGaPrice(Number(e.target.value))} className="rounded-lg border px-3 py-2" />
+              <input type="number" min={1} placeholder="Số lượng" value={gaQuantity} onChange={(e) => setGaQuantity(Number(e.target.value))} className="rounded-lg border px-3 py-2" />
+              <Button type="submit" className="sm:col-span-3" disabled={!selectedEventId}>Tạo hạng vé tự do</Button>
             </form>
           </CardContent>
         </Card>
@@ -339,18 +340,18 @@ export default function OrganizerDashboardPage() {
         <Card>
           <CardHeader className="flex items-center gap-2">
             <UserPlus className="h-5 w-5 text-indigo-600" />
-            <h2 className="font-semibold">Assign Check-in Staff</h2>
+            <h2 className="font-semibold">Phân công nhân viên soát vé</h2>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleAssignStaff} className="flex gap-2 text-sm">
               <input
                 required
-                placeholder="Staff User UUID"
+                placeholder="Nhập UUID tài khoản nhân viên"
                 value={staffUserId}
                 onChange={(e) => setStaffUserId(e.target.value)}
                 className="flex-1 rounded-lg border px-3 py-2 font-mono"
               />
-              <Button type="submit" disabled={!selectedEventId}>Assign</Button>
+              <Button type="submit" disabled={!selectedEventId}>Phân công</Button>
             </form>
           </CardContent>
         </Card>
@@ -360,24 +361,24 @@ export default function OrganizerDashboardPage() {
         <Card>
           <CardHeader className="flex items-center gap-2">
             <BarChart3 className="h-5 w-5 text-indigo-600" />
-            <h2 className="font-semibold">Event Sales & Check-in Analytics</h2>
+            <h2 className="font-semibold">Thống kê bán vé &amp; Soát vé sự kiện</h2>
           </CardHeader>
           <CardContent className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-            <div className="rounded-lg bg-slate-50 p-3"><p className="text-xs text-slate-500">Total Seats</p><p className="text-xl font-bold">{stats.totalTickets}</p></div>
-            <div className="rounded-lg bg-emerald-50 p-3"><p className="text-xs text-emerald-700">Sold</p><p className="text-xl font-bold text-emerald-700">{stats.soldTickets}</p></div>
-            <div className="rounded-lg bg-amber-50 p-3"><p className="text-xs text-amber-700">Held</p><p className="text-xl font-bold text-amber-700">{stats.heldTickets}</p></div>
-            <div className="rounded-lg bg-indigo-50 p-3"><p className="text-xs text-indigo-700">Revenue</p><p className="text-xl font-bold text-indigo-700">{formatCurrency(stats.totalRevenue)}</p></div>
-            <div className="rounded-lg bg-slate-50 p-3"><p className="text-xs text-slate-500">Available</p><p className="text-lg font-bold">{stats.availableTickets}</p></div>
-            <div className="rounded-lg bg-slate-50 p-3"><p className="text-xs text-slate-500">Orders</p><p className="text-lg font-bold">{stats.totalOrders}</p></div>
-            <div className="rounded-lg bg-slate-50 p-3"><p className="text-xs text-slate-500">Payment Success</p><p className="text-lg font-bold">{stats.paymentSuccessRate}%</p></div>
-            <div className="rounded-lg bg-slate-50 p-3"><p className="text-xs text-slate-500">Check-ins</p><p className="text-lg font-bold">{checkinStats ? `${checkinStats.checkedInCount} / ${checkinStats.totalIssuedTickets}` : stats.checkinCount}</p></div>
+            <div className="rounded-lg bg-slate-50 p-3"><p className="text-xs text-slate-500">Tổng số ghế</p><p className="text-xl font-bold">{stats.totalTickets}</p></div>
+            <div className="rounded-lg bg-emerald-50 p-3"><p className="text-xs text-emerald-700">Đã bán</p><p className="text-xl font-bold text-emerald-700">{stats.soldTickets}</p></div>
+            <div className="rounded-lg bg-amber-50 p-3"><p className="text-xs text-amber-700">Đang giữ chỗ</p><p className="text-xl font-bold text-amber-700">{stats.heldTickets}</p></div>
+            <div className="rounded-lg bg-indigo-50 p-3"><p className="text-xs text-indigo-700">Doanh thu</p><p className="text-xl font-bold text-indigo-700">{formatCurrency(stats.totalRevenue)}</p></div>
+            <div className="rounded-lg bg-slate-50 p-3"><p className="text-xs text-slate-500">Ghế còn trống</p><p className="text-lg font-bold">{stats.availableTickets}</p></div>
+            <div className="rounded-lg bg-slate-50 p-3"><p className="text-xs text-slate-500">Tổng đơn hàng</p><p className="text-lg font-bold">{stats.totalOrders}</p></div>
+            <div className="rounded-lg bg-slate-50 p-3"><p className="text-xs text-slate-500">Tỉ lệ thanh toán</p><p className="text-lg font-bold">{stats.paymentSuccessRate}%</p></div>
+            <div className="rounded-lg bg-slate-50 p-3"><p className="text-xs text-slate-500">Lượt check-in</p><p className="text-lg font-bold">{checkinStats ? `${checkinStats.checkedInCount} / ${checkinStats.totalIssuedTickets}` : stats.checkinCount}</p></div>
           </CardContent>
         </Card>
       )}
 
       {seatMap && seatMap.sections.length > 0 && (
         <Card>
-          <CardHeader><h2 className="font-semibold">Seat Management (Click AVAILABLE/BLOCKED seat to toggle)</h2></CardHeader>
+          <CardHeader><h2 className="font-semibold">Quản lý sơ đồ ghế (Nhấn vào ghế trống/khóa để bật hoặc tắt khóa ghế)</h2></CardHeader>
           <CardContent className="space-y-3">
             {seatMap.sections.map((sec) => (
               <div key={sec.sectionId} className="space-y-1.5">
@@ -407,30 +408,30 @@ export default function OrganizerDashboardPage() {
       )}
 
       <Card>
-        <CardHeader><h2 className="font-semibold">My Events</h2></CardHeader>
+        <CardHeader><h2 className="font-semibold">Sự kiện của tôi</h2></CardHeader>
         <CardContent className="divide-y divide-slate-100">
           {events.length === 0 ? (
-            <p className="text-sm text-slate-500">No events created yet.</p>
+            <p className="text-sm text-slate-500">Bạn chưa tạo sự kiện nào.</p>
           ) : (
             events.map((ev) => (
               <div key={ev.id} className="flex flex-wrap items-center justify-between gap-4 py-3">
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="font-semibold">{ev.name}</span>
-                    <Badge tone={ev.status === "SALES_OPEN" ? "success" : "info"}>{ev.status}</Badge>
+                    <Badge tone={ev.status === "SALES_OPEN" ? "success" : "info"}>{formatEventStatus(ev.status)}</Badge>
                   </div>
                   <p className="text-xs text-slate-500">{formatDateTime(ev.startTime)} • ID: {ev.id}</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  <Button size="sm" variant="outline" onClick={() => setSelectedEventId(ev.id)}>Manage / Stats</Button>
+                  <Button size="sm" variant="outline" onClick={() => setSelectedEventId(ev.id)}>Quản lý &amp; Thống kê</Button>
                   {ev.status === "DRAFT" && (
-                    <Button size="sm" onClick={() => handlePublish(ev.id)}>Publish</Button>
+                    <Button size="sm" onClick={() => handlePublish(ev.id)}>Phát hành</Button>
                   )}
                   {(ev.status === "PUBLISHED" || ev.status === "SALES_OPEN") && (
-                    <Button size="sm" variant="outline" onClick={() => handleHide(ev.id)}>Hide</Button>
+                    <Button size="sm" variant="outline" onClick={() => handleHide(ev.id)}>Tạm ẩn</Button>
                   )}
                   {ev.status !== "CANCELLED" && (
-                    <Button size="sm" variant="danger" onClick={() => handleCancel(ev.id)}>Cancel</Button>
+                    <Button size="sm" variant="danger" onClick={() => handleCancel(ev.id)}>Hủy sự kiện</Button>
                   )}
                 </div>
               </div>

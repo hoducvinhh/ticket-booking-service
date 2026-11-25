@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { Calendar, Clock, MapPin, ShieldCheck, Ticket } from "lucide-react";
 import { api, extractErrorMessage } from "@/lib/api";
-import { formatCurrency, formatDateTime } from "@/lib/utils";
+import { formatCategory, formatCurrency, formatDateTime, formatEventStatus } from "@/lib/utils";
 import { useAuthStore } from "@/stores/auth-store";
 import {
   ApiEnvelope,
@@ -49,7 +49,7 @@ export default function EventDetailPage() {
     return (
       <Card>
         <CardContent className="py-12 text-center text-rose-600">
-          Event not found or no longer available.
+          Không tìm thấy sự kiện hoặc sự kiện đã ngừng hiển thị.
         </CardContent>
       </Card>
     );
@@ -87,7 +87,7 @@ export default function EventDetailPage() {
       });
       router.push(`/checkout/${orderRes.data.data.id}`);
     } catch (err) {
-      setGaError(extractErrorMessage(err, "Could not reserve GA tickets"));
+      setGaError(extractErrorMessage(err, "Không thể giữ vé đứng tự do vào lúc này"));
     } finally {
       setGaBusy(false);
     }
@@ -98,9 +98,11 @@ export default function EventDetailPage() {
       <div className="space-y-6 lg:col-span-2">
         <div className="rounded-2xl bg-gradient-to-br from-slate-900 via-indigo-950 to-indigo-800 p-8 text-white shadow-lg">
           <div className="flex flex-wrap items-center gap-2">
-            <Badge tone={event.status === "SALES_OPEN" ? "success" : "info"}>{event.status}</Badge>
-            {event.category && <Badge tone="neutral">{event.category}</Badge>}
-            {event.waitingRoomEnabled && <Badge tone="warning">Virtual Waiting Room Active</Badge>}
+            <Badge tone={event.status === "SALES_OPEN" ? "success" : "info"}>
+              {formatEventStatus(event.status)}
+            </Badge>
+            {event.category && <Badge tone="neutral">{formatCategory(event.category)}</Badge>}
+            {event.waitingRoomEnabled && <Badge tone="warning">Áp dụng phòng chờ ảo</Badge>}
           </div>
           <h1 className="mt-4 text-3xl font-bold">{event.name}</h1>
           <div className="mt-4 flex flex-wrap gap-6 text-sm text-indigo-100">
@@ -116,20 +118,20 @@ export default function EventDetailPage() {
         </div>
 
         <Card>
-          <CardHeader><h2 className="text-lg font-semibold">About This Event</h2></CardHeader>
+          <CardHeader><h2 className="text-lg font-semibold">Giới thiệu sự kiện</h2></CardHeader>
           <CardContent>
             <p className="whitespace-pre-line text-sm leading-relaxed text-slate-700">
-              {event.description || "Join us for an unforgettable live experience."}
+              {event.description || "Hãy cùng hòa mình vào không khí sự kiện trực tiếp đầy ấn tượng."}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Reserved Seating Sections</h2>
+            <h2 className="text-lg font-semibold">Các khu vực ghế ngồi</h2>
             {availability && availability.totalSeats > 0 && (
               <span className="text-xs font-medium text-slate-500">
-                {availability.availableSeats} / {availability.totalSeats} seats available
+                Còn trống {availability.availableSeats} / {availability.totalSeats} ghế
               </span>
             )}
           </CardHeader>
@@ -140,14 +142,16 @@ export default function EventDetailPage() {
                   <div key={sec.id} className="flex items-center justify-between py-3">
                     <div>
                       <p className="font-medium text-slate-900">{sec.name}</p>
-                      <p className="text-xs text-slate-500">Capacity: {sec.capacity} • {sec.type}</p>
+                      <p className="text-xs text-slate-500">
+                        Sức chứa: {sec.capacity} chỗ • {sec.type === "RESERVED" ? "Ghế chỉ định" : "Vé tự do"}
+                      </p>
                     </div>
                     <span className="font-semibold text-indigo-600">{formatCurrency(sec.price)}</span>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-slate-500">No reserved seating sections configured.</p>
+              <p className="text-sm text-slate-500">Sự kiện chưa cấu hình sơ đồ ghế ngồi.</p>
             )}
           </CardContent>
         </Card>
@@ -156,7 +160,7 @@ export default function EventDetailPage() {
           <Card>
             <CardHeader className="flex items-center gap-2">
               <Ticket className="h-5 w-5 text-indigo-600" />
-              <h2 className="text-lg font-semibold">General Admission Tickets</h2>
+              <h2 className="text-lg font-semibold">Vé tự do (General Admission)</h2>
             </CardHeader>
             <CardContent className="space-y-3">
               {gaError && <p className="text-sm text-rose-600">{gaError}</p>}
@@ -165,7 +169,7 @@ export default function EventDetailPage() {
                   <div>
                     <p className="font-semibold">{tt.name}</p>
                     <p className="text-xs text-slate-500">
-                      {formatCurrency(tt.price)} • {tt.remainingQuantity} remaining
+                      {formatCurrency(tt.price)} • Còn lại {tt.remainingQuantity} vé
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -182,7 +186,7 @@ export default function EventDetailPage() {
                       disabled={gaBusy || tt.remainingQuantity === 0}
                       onClick={() => handleGaBook(tt.id)}
                     >
-                      Buy GA
+                      Mua vé ngay
                     </Button>
                   </div>
                 </div>
@@ -194,20 +198,20 @@ export default function EventDetailPage() {
 
       <div className="space-y-4">
         <Card className="sticky top-24">
-          <CardHeader><h3 className="font-semibold">Booking Information</h3></CardHeader>
+          <CardHeader><h3 className="font-semibold">Thông tin đặt vé</h3></CardHeader>
           <CardContent className="space-y-4 text-sm">
             <div className="flex items-start gap-2 text-slate-600">
               <Clock className="mt-0.5 h-4 w-4 text-indigo-600" />
               <div>
-                <p className="font-medium text-slate-900">Sales Window</p>
+                <p className="font-medium text-slate-900">Thời gian mở bán</p>
                 <p>{formatDateTime(event.salesStartTime)} → {formatDateTime(event.salesEndTime)}</p>
               </div>
             </div>
             <div className="flex items-start gap-2 text-slate-600">
               <ShieldCheck className="mt-0.5 h-4 w-4 text-emerald-600" />
               <div>
-                <p className="font-medium text-slate-900">Seat Hold Protection</p>
-                <p>Max {event.maxSeatsPerReservation} seats per reservation, held for 10 minutes.</p>
+                <p className="font-medium text-slate-900">Bảo vệ giữ chỗ</p>
+                <p>Tối đa {event.maxSeatsPerReservation} ghế mỗi lượt đặt, giữ chỗ trong 10 phút.</p>
               </div>
             </div>
             <Button
@@ -216,7 +220,7 @@ export default function EventDetailPage() {
               disabled={event.status !== "SALES_OPEN" && event.status !== "PUBLISHED"}
               onClick={handleBookClick}
             >
-              {event.waitingRoomEnabled ? "Enter Waiting Room" : "Select Seats & Book"}
+              {event.waitingRoomEnabled ? "Vào phòng chờ" : "Chọn ghế & Đặt vé"}
             </Button>
           </CardContent>
         </Card>

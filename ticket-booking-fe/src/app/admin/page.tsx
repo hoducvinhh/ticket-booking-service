@@ -4,7 +4,14 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Shield } from "lucide-react";
 import { api, extractErrorMessage } from "@/lib/api";
-import { formatCurrency, formatDateTime } from "@/lib/utils";
+import {
+  formatCurrency,
+  formatDateTime,
+  formatEventStatus,
+  formatOrderStatus,
+  formatRoleName,
+  formatUserStatus,
+} from "@/lib/utils";
 import { ApiEnvelope, PageEnvelope, UserProfile } from "@/types";
 import { Badge, Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -56,6 +63,14 @@ interface AdminAuditLogSummary {
   createdAt: string;
 }
 
+const TABS = [
+  { id: "users", label: "Người dùng" },
+  { id: "events", label: "Sự kiện" },
+  { id: "orders", label: "Đơn hàng & Hoàn tiền" },
+  { id: "webhooks", label: "Webhook thanh toán" },
+  { id: "audit", label: "Nhật ký hệ thống" },
+] as const;
+
 export default function AdminDashboardPage() {
   const [tab, setTab] = useState<"users" | "events" | "orders" | "webhooks" | "audit">("users");
   const [msg, setMsg] = useState("");
@@ -104,7 +119,7 @@ export default function AdminDashboardPage() {
     setMsg("");
     try {
       await api.post(`/admin/users/${userId}/roles`, { roleName });
-      setMsg(`Assigned role ${roleName}.`);
+      setMsg(`Đã cấp quyền ${formatRoleName(roleName)}.`);
       refetchUsers();
     } catch (err) {
       setMsg(extractErrorMessage(err));
@@ -115,7 +130,7 @@ export default function AdminDashboardPage() {
     setMsg("");
     try {
       await api.post(`/admin/orders/${orderId}/refund`);
-      setMsg("Refund completed and user notified.");
+      setMsg("Đã hoàn tất hoàn tiền và gửi thông báo tới khách hàng.");
       refetchOrders();
     } catch (err) {
       setMsg(extractErrorMessage(err));
@@ -126,51 +141,51 @@ export default function AdminDashboardPage() {
     <div className="space-y-8">
       <div className="flex items-center gap-2">
         <Shield className="h-6 w-6 text-indigo-600" />
-        <h1 className="text-2xl font-bold">Admin Control Center</h1>
+        <h1 className="text-2xl font-bold">Trung tâm Quản trị Hệ thống</h1>
       </div>
 
       {msg && <div className="rounded-lg bg-indigo-50 p-3 text-sm text-indigo-800">{msg}</div>}
 
       {overview && (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-          <Card><CardContent><p className="text-xs text-slate-500">Users</p><p className="text-2xl font-bold">{overview.totalUsers}</p></CardContent></Card>
-          <Card><CardContent><p className="text-xs text-slate-500">Events</p><p className="text-2xl font-bold">{overview.totalEvents}</p></CardContent></Card>
-          <Card><CardContent><p className="text-xs text-slate-500">Orders</p><p className="text-2xl font-bold">{overview.totalOrders}</p></CardContent></Card>
-          <Card><CardContent><p className="text-xs text-slate-500">Revenue</p><p className="text-2xl font-bold text-indigo-600">{formatCurrency(overview.totalRevenue)}</p></CardContent></Card>
-          <Card><CardContent><p className="text-xs text-slate-500">Failed Webhooks</p><p className="text-2xl font-bold text-rose-600">{overview.failedWebhooks}</p></CardContent></Card>
-          <Card><CardContent><p className="text-xs text-slate-500">Payments</p><p className="text-xl font-bold">{overview.totalPayments}</p></CardContent></Card>
-          <Card><CardContent><p className="text-xs text-slate-500">Failed Payments</p><p className="text-xl font-bold text-rose-600">{overview.failedPayments}</p></CardContent></Card>
-          <Card><CardContent><p className="text-xs text-slate-500">Queue Backlog</p><p className="text-xl font-bold">{overview.waitingRoomQueueBacklog}</p></CardContent></Card>
-          <Card><CardContent><p className="text-xs text-slate-500">Expiry Backlog</p><p className="text-xl font-bold">{overview.reservationExpirationBacklog}</p></CardContent></Card>
+          <Card><CardContent><p className="text-xs text-slate-500">Tổng người dùng</p><p className="text-2xl font-bold">{overview.totalUsers}</p></CardContent></Card>
+          <Card><CardContent><p className="text-xs text-slate-500">Tổng sự kiện</p><p className="text-2xl font-bold">{overview.totalEvents}</p></CardContent></Card>
+          <Card><CardContent><p className="text-xs text-slate-500">Tổng đơn hàng</p><p className="text-2xl font-bold">{overview.totalOrders}</p></CardContent></Card>
+          <Card><CardContent><p className="text-xs text-slate-500">Tổng doanh thu</p><p className="text-2xl font-bold text-indigo-600">{formatCurrency(overview.totalRevenue)}</p></CardContent></Card>
+          <Card><CardContent><p className="text-xs text-slate-500">Webhook lỗi</p><p className="text-2xl font-bold text-rose-600">{overview.failedWebhooks}</p></CardContent></Card>
+          <Card><CardContent><p className="text-xs text-slate-500">Giao dịch</p><p className="text-xl font-bold">{overview.totalPayments}</p></CardContent></Card>
+          <Card><CardContent><p className="text-xs text-slate-500">Thanh toán lỗi</p><p className="text-xl font-bold text-rose-600">{overview.failedPayments}</p></CardContent></Card>
+          <Card><CardContent><p className="text-xs text-slate-500">Hàng đợi phòng chờ</p><p className="text-xl font-bold">{overview.waitingRoomQueueBacklog}</p></CardContent></Card>
+          <Card><CardContent><p className="text-xs text-slate-500">Chờ nhả giữ chỗ</p><p className="text-xl font-bold">{overview.reservationExpirationBacklog}</p></CardContent></Card>
         </div>
       )}
 
       <div className="flex flex-wrap gap-2">
-        {(["users", "events", "orders", "webhooks", "audit"] as const).map((t) => (
-          <Button key={t} size="sm" variant={tab === t ? "primary" : "outline"} onClick={() => setTab(t)}>
-            {t.toUpperCase()}
+        {TABS.map((t) => (
+          <Button key={t.id} size="sm" variant={tab === t.id ? "primary" : "outline"} onClick={() => setTab(t.id)}>
+            {t.label}
           </Button>
         ))}
       </div>
 
       {tab === "users" && (
         <Card>
-          <CardHeader><h2 className="font-semibold">User & Role Management</h2></CardHeader>
+          <CardHeader><h2 className="font-semibold">Quản lý tài khoản &amp; Phân quyền</h2></CardHeader>
           <CardContent className="divide-y divide-slate-100 text-sm">
             {(usersPage?.content ?? []).map((u) => (
               <div key={u.id} className="flex flex-wrap items-center justify-between gap-4 py-3">
                 <div>
                   <p className="font-semibold">{u.fullName} <span className="text-slate-400">({u.email})</span></p>
                   <div className="mt-1 flex flex-wrap gap-1.5">
-                    {u.roles.map((r) => <Badge key={r} tone="info">{r}</Badge>)}
-                    <Badge tone={u.status === "ACTIVE" ? "success" : "danger"}>{u.status}</Badge>
+                    {u.roles.map((r) => <Badge key={r} tone="info">{formatRoleName(r)}</Badge>)}
+                    <Badge tone={u.status === "ACTIVE" ? "success" : "danger"}>{formatUserStatus(u.status)}</Badge>
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  <Button size="sm" variant="outline" onClick={() => assignRole(u.id, "ORGANIZER")}>+Organizer</Button>
-                  <Button size="sm" variant="outline" onClick={() => assignRole(u.id, "CHECKIN_STAFF")}>+Staff</Button>
+                  <Button size="sm" variant="outline" onClick={() => assignRole(u.id, "ORGANIZER")}>+ Ban tổ chức</Button>
+                  <Button size="sm" variant="outline" onClick={() => assignRole(u.id, "CHECKIN_STAFF")}>+ Soát vé</Button>
                   <Button size="sm" variant="outline" onClick={() => toggleUserStatus(u)}>
-                    {u.status === "ACTIVE" ? "Lock" : "Unlock"}
+                    {u.status === "ACTIVE" ? "Khóa tài khoản" : "Mở khóa"}
                   </Button>
                 </div>
               </div>
@@ -181,7 +196,7 @@ export default function AdminDashboardPage() {
 
       {tab === "events" && (
         <Card>
-          <CardHeader><h2 className="font-semibold">All Platform Events</h2></CardHeader>
+          <CardHeader><h2 className="font-semibold">Tất cả sự kiện trên nền tảng</h2></CardHeader>
           <CardContent className="divide-y divide-slate-100 text-sm">
             {(eventsPage?.content ?? []).map((e) => (
               <div key={e.id} className="flex items-center justify-between py-3">
@@ -189,7 +204,7 @@ export default function AdminDashboardPage() {
                   <p className="font-semibold">{e.name}</p>
                   <p className="text-xs text-slate-500">{formatDateTime(e.startTime)}</p>
                 </div>
-                <Badge tone="info">{e.status}</Badge>
+                <Badge tone={e.status === "SALES_OPEN" ? "success" : "info"}>{formatEventStatus(e.status)}</Badge>
               </div>
             ))}
           </CardContent>
@@ -198,7 +213,7 @@ export default function AdminDashboardPage() {
 
       {tab === "orders" && (
         <Card>
-          <CardHeader><h2 className="font-semibold">Orders & Refunds</h2></CardHeader>
+          <CardHeader><h2 className="font-semibold">Quản lý đơn hàng &amp; Hoàn tiền</h2></CardHeader>
           <CardContent className="divide-y divide-slate-100 text-sm">
             {(ordersPage?.content ?? []).map((o) => (
               <div key={o.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
@@ -209,11 +224,11 @@ export default function AdminDashboardPage() {
                 <div className="flex items-center gap-3">
                   <span className="font-semibold">{formatCurrency(o.totalAmount, o.currency)}</span>
                   <Badge tone={o.status === "PAID" ? "success" : o.status === "REFUND_PENDING" ? "warning" : "neutral"}>
-                    {o.status}
+                    {formatOrderStatus(o.status)}
                   </Badge>
                   {(o.status === "REFUND_PENDING" || o.status === "PAID") && (
                     <Button size="sm" variant="danger" onClick={() => processRefund(o.id)}>
-                      Process Refund
+                      Xử lý hoàn tiền
                     </Button>
                   )}
                 </div>
@@ -225,7 +240,7 @@ export default function AdminDashboardPage() {
 
       {tab === "webhooks" && (
         <Card>
-          <CardHeader><h2 className="font-semibold">Webhook Events</h2></CardHeader>
+          <CardHeader><h2 className="font-semibold">Sự kiện Webhook thanh toán</h2></CardHeader>
           <CardContent className="divide-y divide-slate-100 text-sm">
             {(webhooksPage?.content ?? []).map((w) => (
               <div key={w.id} className="flex flex-wrap items-center justify-between gap-2 py-3">
@@ -233,7 +248,9 @@ export default function AdminDashboardPage() {
                   <p className="font-mono font-semibold">{w.provider} — {w.providerEventId}</p>
                   {w.errorMessage && <p className="text-xs text-rose-600">{w.errorMessage}</p>}
                 </div>
-                <Badge tone={w.status === "PROCESSED" ? "success" : "danger"}>{w.status}</Badge>
+                <Badge tone={w.status === "PROCESSED" ? "success" : "danger"}>
+                  {w.status === "PROCESSED" ? "Đã xử lý" : "Thất bại"}
+                </Badge>
               </div>
             ))}
           </CardContent>
@@ -242,7 +259,7 @@ export default function AdminDashboardPage() {
 
       {tab === "audit" && (
         <Card>
-          <CardHeader><h2 className="font-semibold">Audit Logs</h2></CardHeader>
+          <CardHeader><h2 className="font-semibold">Nhật ký thao tác hệ thống</h2></CardHeader>
           <CardContent className="divide-y divide-slate-100 text-sm">
             {(auditPage?.content ?? []).map((a) => (
               <div key={a.id} className="flex items-center justify-between py-2.5">

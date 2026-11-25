@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { QrCode, Ticket } from "lucide-react";
 import { api } from "@/lib/api";
-import { formatDateTime } from "@/lib/utils";
+import { formatDateTime, formatTicketStatus } from "@/lib/utils";
 import { ApiEnvelope, PageEnvelope, TicketItem } from "@/types";
 import { Badge, Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -22,13 +22,13 @@ export default function MyTicketsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">My E-Tickets</h1>
+      <h1 className="text-2xl font-bold">Vé điện tử của tôi</h1>
       {isLoading ? (
         <div className="h-40 animate-pulse rounded-xl bg-slate-200" />
       ) : tickets.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center text-slate-500">
-            You don&apos;t have any issued tickets yet.
+            Bạn chưa có vé điện tử nào.
           </CardContent>
         </Card>
       ) : (
@@ -42,19 +42,19 @@ export default function MyTicketsPage() {
                     {t.ticketCode}
                   </span>
                   <Badge tone={t.status === "VALID" ? "success" : t.status === "CHECKED_IN" ? "info" : "danger"}>
-                    {t.status}
+                    {formatTicketStatus(t.status)}
                   </Badge>
                 </div>
                 <div>
-                  <p className="font-semibold text-slate-900">{t.eventName || "Event"}</p>
+                  <p className="font-semibold text-slate-900">{t.eventName || "Sự kiện"}</p>
                   <p className="text-sm text-slate-600">
-                    {t.sectionName || "Section"} • Seat {t.seatCode || "-"}
+                    {t.seatCode ? `${t.sectionName || "Khu vực"} • Ghế ${t.seatCode}` : "Vé tự do (General Admission)"}
                   </p>
-                  <p className="mt-1 text-xs text-slate-500">Issued: {formatDateTime(t.issuedAt)}</p>
+                  <p className="mt-1 text-xs text-slate-500">Phát hành: {formatDateTime(t.issuedAt)}</p>
                 </div>
                 <Link href={`/my-tickets/${t.id}`} className="block">
                   <Button className="w-full" size="sm">
-                    <QrCode className="h-4 w-4" /> Show QR Pass
+                    <QrCode className="h-4 w-4" /> Xem mã QR
                   </Button>
                 </Link>
               </CardContent>

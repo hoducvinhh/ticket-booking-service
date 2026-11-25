@@ -95,27 +95,31 @@ public class NotificationQueueConsumer {
 
     private String resolveTitle(String eventType) {
         return switch (eventType) {
-            case "USER_REGISTERED" -> "Welcome to Event Ticketing!";
-            case "ORDER_CREATED" -> "Order Created";
-            case "PAYMENT_SUCCEEDED" -> "Payment Successful";
-            case "TICKETS_ISSUED" -> "Your E-Tickets Are Ready";
-            case "EVENT_CANCELLED" -> "Event Cancelled & Refund Initiated";
-            case "PAYMENT_EXPIRED_REFUND_NEEDED" -> "Reservation Expired During Payment";
-            case "PASSWORD_RESET_REQUESTED" -> "Password Reset Request";
-            default -> "Ticketing Update";
+            case "USER_REGISTERED" -> "Chào mừng bạn đến với FlashTix!";
+            case "ORDER_CREATED" -> "Đã tạo đơn hàng mới";
+            case "PAYMENT_SUCCEEDED" -> "Thanh toán thành công";
+            case "TICKETS_ISSUED" -> "Vé điện tử của bạn đã sẵn sàng";
+            case "EVENT_REMINDER" -> "Nhắc lịch sự kiện sắp diễn ra";
+            case "EVENT_CANCELLED" -> "Sự kiện đã hủy & Đã tạo yêu cầu hoàn tiền";
+            case "REFUND_SUCCEEDED" -> "Hoàn tiền thành công";
+            case "PAYMENT_EXPIRED_REFUND_NEEDED" -> "Đơn thanh toán sau khi hết hạn giữ chỗ";
+            case "PASSWORD_RESET_REQUESTED" -> "Yêu cầu đặt lại mật khẩu";
+            default -> "Cập nhật từ hệ thống FlashTix";
         };
     }
 
     private String resolveContent(String eventType, Map<String, Object> payload) {
         return switch (eventType) {
-            case "USER_REGISTERED" -> "Your account has been registered successfully.";
-            case "ORDER_CREATED" -> "Order " + payload.getOrDefault("orderCode", "") + " has been created. Please complete payment before expiration.";
-            case "PAYMENT_SUCCEEDED" -> "Payment received for order " + payload.getOrDefault("orderCode", "") + ".";
-            case "TICKETS_ISSUED" -> "Issued " + payload.getOrDefault("ticketCount", 1) + " e-ticket(s) for order " + payload.getOrDefault("orderCode", "") + ".";
-            case "EVENT_CANCELLED" -> "Event " + payload.getOrDefault("eventName", "") + " has been cancelled. Your refund is being processed.";
-            case "PAYMENT_EXPIRED_REFUND_NEEDED" -> "Payment succeeded after reservation expiration for order " + payload.getOrDefault("orderCode", "") + ". A refund has been initiated.";
-            case "PASSWORD_RESET_REQUESTED" -> "Use this reset token to set a new password: " + payload.getOrDefault("resetToken", "");
-            default -> "Notification event: " + eventType;
+            case "USER_REGISTERED" -> "Tài khoản của bạn đã được đăng ký thành công. Chúc bạn có trải nghiệm đặt vé tuyệt vời!";
+            case "ORDER_CREATED" -> "Đơn hàng " + payload.getOrDefault("orderCode", "") + " đã được tạo. Vui lòng hoàn tất thanh toán trước khi hết thời gian giữ ghế.";
+            case "PAYMENT_SUCCEEDED" -> "Hệ thống đã ghi nhận thanh toán thành công cho đơn hàng " + payload.getOrDefault("orderCode", "") + ".";
+            case "TICKETS_ISSUED" -> "Đã phát hành " + payload.getOrDefault("ticketCount", 1) + " vé điện tử cho đơn hàng " + payload.getOrDefault("orderCode", "") + ". Bạn có thể xem mã QR tại mục Vé của tôi.";
+            case "EVENT_REMINDER" -> "Sự kiện " + payload.getOrDefault("eventName", "") + " sẽ diễn ra trong vòng 24 giờ tới. Hãy chuẩn bị sẵn mã QR khi đến cổng soát vé nhé.";
+            case "EVENT_CANCELLED" -> "Sự kiện " + payload.getOrDefault("eventName", "") + " đã bị hủy. Yêu cầu hoàn tiền của bạn đang được hệ thống xử lý.";
+            case "REFUND_SUCCEEDED" -> "Khoản hoàn tiền cho đơn hàng " + payload.getOrDefault("orderCode", "") + " đã được xử lý thành công.";
+            case "PAYMENT_EXPIRED_REFUND_NEEDED" -> "Thanh toán cho đơn hàng " + payload.getOrDefault("orderCode", "") + " được ghi nhận sau khi hết hạn giữ ghế. Hệ thống đã chuyển đơn sang trạng thái chờ hoàn tiền.";
+            case "PASSWORD_RESET_REQUESTED" -> "Sử dụng mã xác thực sau để đặt lại mật khẩu mới: " + payload.getOrDefault("resetToken", "");
+            default -> "Cập nhật sự kiện hệ thống: " + eventType;
         };
     }
 }

@@ -28,14 +28,14 @@ export default function NotificationsPage() {
     <div className="mx-auto max-w-2xl space-y-6">
       <div className="flex items-center gap-2">
         <Bell className="h-6 w-6 text-indigo-600" />
-        <h1 className="text-2xl font-bold">Notification Center</h1>
+        <h1 className="text-2xl font-bold">Trung tâm thông báo</h1>
       </div>
 
       {isLoading ? (
         <div className="h-40 animate-pulse rounded-xl bg-slate-200" />
       ) : items.length === 0 ? (
         <Card>
-          <CardContent className="py-12 text-center text-slate-500">No notifications yet.</CardContent>
+          <CardContent className="py-12 text-center text-slate-500">Hiện chưa có thông báo nào.</CardContent>
         </Card>
       ) : (
         <div className="space-y-3">
@@ -45,14 +45,14 @@ export default function NotificationsPage() {
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <span className="font-semibold">{n.title}</span>
-                    {!n.read && <Badge tone="info">New</Badge>}
+                    {!n.read && <Badge tone="info">Mới</Badge>}
                   </div>
                   <p className="text-sm text-slate-600">{n.content}</p>
                   <p className="text-xs text-slate-400">{formatDateTime(n.createdAt)}</p>
                 </div>
                 {!n.read && (
                   <Button size="sm" variant="outline" onClick={() => markRead(n.id)}>
-                    <Check className="h-4 w-4" /> Mark Read
+                    <Check className="h-4 w-4" /> Đánh dấu đã đọc
                   </Button>
                 )}
               </CardContent>

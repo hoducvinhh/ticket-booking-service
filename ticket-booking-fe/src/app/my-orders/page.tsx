@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api, extractErrorMessage } from "@/lib/api";
-import { formatCurrency, formatDateTime } from "@/lib/utils";
+import { formatCurrency, formatDateTime, formatOrderStatus } from "@/lib/utils";
 import { ApiEnvelope, OrderResponse, PageEnvelope } from "@/types";
 import { Badge, Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,7 +24,7 @@ export default function MyOrdersPage() {
     setMsg("");
     try {
       await api.post(`/orders/${orderId}/cancel`);
-      setMsg("Order cancelled and held seats released.");
+      setMsg("Đã hủy đơn hàng và giải phóng các ghế đang giữ.");
       refetch();
     } catch (err) {
       setMsg(extractErrorMessage(err));
@@ -35,14 +35,14 @@ export default function MyOrdersPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">My Orders</h1>
+      <h1 className="text-2xl font-bold">Đơn hàng của tôi</h1>
       {msg && <div className="rounded-lg bg-indigo-50 p-3 text-sm text-indigo-800">{msg}</div>}
       {isLoading ? (
         <div className="h-40 animate-pulse rounded-xl bg-slate-200" />
       ) : orders.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center text-slate-500">
-            You have no orders yet.
+            Bạn chưa có đơn hàng nào.
           </CardContent>
         </Card>
       ) : (
@@ -57,15 +57,17 @@ export default function MyOrdersPage() {
                       tone={
                         order.status === "PAID"
                           ? "success"
-                          : order.status === "PENDING_PAYMENT"
+                          : order.status === "PENDING_PAYMENT" || order.status === "REFUND_PENDING"
                           ? "warning"
+                          : order.status === "REFUNDED"
+                          ? "info"
                           : "danger"
                       }
                     >
-                      {order.status}
+                      {formatOrderStatus(order.status)}
                     </Badge>
                   </div>
-                  <p className="text-sm text-slate-600">{order.eventName || "Event"}</p>
+                  <p className="text-sm text-slate-600">{order.eventName || "Sự kiện"}</p>
                   <p className="text-xs text-slate-500">{formatDateTime(order.createdAt)}</p>
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
@@ -74,12 +76,12 @@ export default function MyOrdersPage() {
                   </span>
                   {order.status === "PENDING_PAYMENT" && (
                     <Button variant="outline" size="sm" onClick={() => handleCancel(order.id)}>
-                      Cancel
+                      Hủy đơn
                     </Button>
                   )}
                   <Link href={`/checkout/${order.id}`}>
                     <Button variant={order.status === "PENDING_PAYMENT" ? "primary" : "outline"} size="sm">
-                      {order.status === "PENDING_PAYMENT" ? "Pay Now" : "Details"}
+                      {order.status === "PENDING_PAYMENT" ? "Thanh toán ngay" : "Xem chi tiết"}
                     </Button>
                   </Link>
                 </div>

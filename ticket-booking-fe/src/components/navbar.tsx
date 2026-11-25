@@ -34,22 +34,22 @@ export function Navbar() {
             <span>FlashTix</span>
           </Link>
           <nav className="hidden md:flex items-center gap-4 text-sm font-medium text-slate-600">
-            <Link href="/" className="hover:text-indigo-600">Events</Link>
+            <Link href="/" className="hover:text-indigo-600">Sự kiện</Link>
             {user && (
               <>
-                <Link href="/my-orders" className="hover:text-indigo-600">My Orders</Link>
-                <Link href="/my-tickets" className="hover:text-indigo-600">My Tickets</Link>
+                <Link href="/my-orders" className="hover:text-indigo-600">Đơn hàng</Link>
+                <Link href="/my-tickets" className="hover:text-indigo-600">Vé của tôi</Link>
                 {isOrganizer && (
-                  <Link href="/organizer" className="hover:text-indigo-600">Organizer</Link>
+                  <Link href="/organizer" className="hover:text-indigo-600">Ban tổ chức</Link>
                 )}
                 {isStaff && (
                   <Link href="/staff" className="inline-flex items-center gap-1 hover:text-indigo-600">
-                    <QrCode className="h-3.5 w-3.5" /> Check-in
+                    <QrCode className="h-3.5 w-3.5" /> Soát vé
                   </Link>
                 )}
                 {isAdmin && (
                   <Link href="/admin" className="inline-flex items-center gap-1 hover:text-indigo-600">
-                    <Shield className="h-3.5 w-3.5" /> Admin
+                    <Shield className="h-3.5 w-3.5" /> Quản trị
                   </Link>
                 )}
               </>
@@ -60,7 +60,7 @@ export function Navbar() {
         <div className="flex items-center gap-3">
           {user ? (
             <>
-              <Link href="/notifications" className="rounded-lg p-2 text-slate-600 hover:bg-slate-100" title="Notifications">
+              <Link href="/notifications" className="rounded-lg p-2 text-slate-600 hover:bg-slate-100" title="Thông báo">
                 <Bell className="h-5 w-5" />
               </Link>
               <Link
@@ -72,16 +72,16 @@ export function Navbar() {
               </Link>
               <Button variant="outline" size="sm" onClick={handleLogout}>
                 <LogOut className="h-4 w-4" />
-                <span className="hidden sm:inline">Logout</span>
+                <span className="hidden sm:inline">Đăng xuất</span>
               </Button>
             </>
           ) : (
             <>
               <Link href="/login">
-                <Button variant="ghost" size="sm">Login</Button>
+                <Button variant="ghost" size="sm">Đăng nhập</Button>
               </Link>
               <Link href="/register">
-                <Button size="sm">Sign up</Button>
+                <Button size="sm">Đăng ký</Button>
               </Link>
             </>
           )}

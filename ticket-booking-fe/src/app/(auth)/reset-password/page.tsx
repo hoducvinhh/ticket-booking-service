@@ -27,7 +27,7 @@ export default function ResetPasswordPage() {
     <div className="mx-auto max-w-md py-8">
       <Card>
         <CardHeader>
-          <h1 className="text-xl font-bold">Set New Password</h1>
+          <h1 className="text-xl font-bold">Đặt lại mật khẩu mới</h1>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -36,7 +36,7 @@ export default function ResetPasswordPage() {
               required
               value={token}
               onChange={(e) => setToken(e.target.value)}
-              placeholder="Reset token"
+              placeholder="Mã xác thực khôi phục mật khẩu"
               className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
             />
             <input
@@ -45,10 +45,10 @@ export default function ResetPasswordPage() {
               minLength={8}
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              placeholder="New password (min 8 chars)"
+              placeholder="Mật khẩu mới (tối thiểu 8 ký tự)"
               className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
             />
-            <Button type="submit" className="w-full">Reset Password</Button>
+            <Button type="submit" className="w-full">Xác nhận đổi mật khẩu</Button>
           </form>
         </CardContent>
       </Card>

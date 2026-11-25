@@ -26,16 +26,16 @@ export default function ForgotPasswordPage() {
     <div className="mx-auto max-w-md py-8">
       <Card>
         <CardHeader>
-          <h1 className="text-xl font-bold">Reset Password</h1>
+          <h1 className="text-xl font-bold">Khôi phục mật khẩu</h1>
         </CardHeader>
         <CardContent>
           {sent ? (
             <div className="space-y-4 text-sm">
               <p className="text-emerald-700">
-                If an account exists for <strong>{email}</strong>, a reset token has been sent.
+                Nếu email <strong>{email}</strong> tồn tại trên hệ thống, mã khôi phục mật khẩu đã được gửi tới hộp thư của bạn.
               </p>
               <Link href="/reset-password">
-                <Button className="w-full">Enter Reset Token</Button>
+                <Button className="w-full">Nhập mã đặt lại mật khẩu</Button>
               </Link>
             </div>
           ) : (
@@ -46,10 +46,10 @@ export default function ForgotPasswordPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
+                placeholder="Nhập email tài khoản của bạn"
                 className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
               />
-              <Button type="submit" className="w-full">Send Reset Link</Button>
+              <Button type="submit" className="w-full">Gửi yêu cầu đặt lại mật khẩu</Button>
             </form>
           )}
         </CardContent>

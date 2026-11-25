@@ -13,8 +13,8 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 const loginSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(1, "Password is required"),
+  email: z.string().email("Địa chỉ email không hợp lệ"),
+  password: z.string().min(1, "Vui lòng nhập mật khẩu"),
 });
 
 type LoginForm = z.infer<typeof loginSchema>;
@@ -44,7 +44,7 @@ export default function LoginPage() {
       setAuth(user, accessToken);
       router.push("/");
     } catch (err) {
-      setErrorMsg(extractErrorMessage(err, "Login failed"));
+      setErrorMsg(extractErrorMessage(err, "Đăng nhập không thành công"));
     }
   };
 
@@ -52,8 +52,8 @@ export default function LoginPage() {
     <div className="mx-auto max-w-md py-8">
       <Card>
         <CardHeader>
-          <h1 className="text-xl font-bold">Sign in to FlashTix</h1>
-          <p className="text-sm text-slate-500">Access your tickets, orders, and event bookings</p>
+          <h1 className="text-xl font-bold">Đăng nhập FlashTix</h1>
+          <p className="text-sm text-slate-500">Quản lý vé điện tử, đơn hàng và đặt chỗ sự kiện</p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -66,12 +66,12 @@ export default function LoginPage() {
                 type="email"
                 {...register("email")}
                 className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
-                placeholder="you@example.com"
+                placeholder="ban@example.com"
               />
               {errors.email && <p className="mt-1 text-xs text-rose-600">{errors.email.message}</p>}
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium">Password</label>
+              <label className="mb-1 block text-sm font-medium">Mật khẩu</label>
               <input
                 type="password"
                 {...register("password")}
@@ -81,17 +81,17 @@ export default function LoginPage() {
             </div>
             <div className="flex justify-end text-xs">
               <Link href="/forgot-password" className="text-indigo-600 hover:underline">
-                Forgot password?
+                Quên mật khẩu?
               </Link>
             </div>
             <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? "Signing in..." : "Sign in"}
+              {isSubmitting ? "Đang đăng nhập..." : "Đăng nhập"}
             </Button>
           </form>
           <p className="mt-4 text-center text-sm text-slate-600">
-            Don&apos;t have an account?{" "}
+            Chưa có tài khoản?{" "}
             <Link href="/register" className="font-medium text-indigo-600 hover:underline">
-              Create one
+              Đăng ký ngay
             </Link>
           </p>
         </CardContent>
@@ -100,15 +100,15 @@ export default function LoginPage() {
       <Card className="mt-4">
         <CardContent className="space-y-2.5 pt-4 text-xs text-slate-600">
           <div className="flex items-center justify-between">
-            <span className="font-semibold text-slate-800">Pre-seeded Demo Accounts</span>
-            <span className="font-mono text-[11px] text-slate-500">Password: FlashTix@2026</span>
+            <span className="font-semibold text-slate-800">Tài khoản trải nghiệm nhanh</span>
+            <span className="font-mono text-[11px] text-slate-500">Mật khẩu: FlashTix@2026</span>
           </div>
           <div className="grid grid-cols-2 gap-2">
             {[
-              { label: "Customer (An)", email: "buyer@flashtix.vn" },
-              { label: "Organizer", email: "organizer@flashtix.vn" },
-              { label: "Check-in Staff", email: "staff@flashtix.vn" },
-              { label: "Admin", email: "admin@flashtix.vn" },
+              { label: "Khách hàng (An)", email: "buyer@flashtix.vn" },
+              { label: "Ban tổ chức", email: "organizer@flashtix.vn" },
+              { label: "Nhân viên soát vé", email: "staff@flashtix.vn" },
+              { label: "Quản trị viên", email: "admin@flashtix.vn" },
             ].map((acc) => (
               <button
                 key={acc.email}

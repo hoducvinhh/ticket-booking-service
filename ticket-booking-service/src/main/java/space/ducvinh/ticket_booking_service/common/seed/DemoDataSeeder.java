@@ -131,153 +131,153 @@ public class DemoDataSeeder implements ApplicationRunner {
 
         String encodedPwd = passwordEncoder.encode(DEMO_PASSWORD);
 
-        UserEntity admin = createUser("admin@flashtix.vn", "Vinh Ho (Admin)", "0901000001",
+        UserEntity admin = createUser("admin@flashtix.vn", "Hồ Đức Vinh (Quản trị viên)", "0901000001",
                 UserStatus.ACTIVE, encodedPwd, adminRole, customerRole);
         UserEntity organizer1 = createUser("organizer@flashtix.vn", "Saigon Live Nation", "0902000002",
                 UserStatus.ACTIVE, encodedPwd, organizerRole, customerRole);
-        UserEntity organizer2 = createUser("techconf@flashtix.vn", "Vietnam DevSummit Org", "0902000003",
+        UserEntity organizer2 = createUser("techconf@flashtix.vn", "Cộng đồng TechSummit Việt Nam", "0902000003",
                 UserStatus.ACTIVE, encodedPwd, organizerRole);
-        UserEntity staff1 = createUser("staff@flashtix.vn", "Minh Tuan (Gate A Lead)", "0903000004",
+        UserEntity staff1 = createUser("staff@flashtix.vn", "Nguyễn Minh Tuấn (Trưởng cổng A)", "0903000004",
                 UserStatus.ACTIVE, encodedPwd, staffRole);
-        UserEntity staff2 = createUser("gateb@flashtix.vn", "Thu Ha (Gate B Staff)", "0903000005",
+        UserEntity staff2 = createUser("gateb@flashtix.vn", "Lê Thu Hà (Nhân viên cổng B)", "0903000005",
                 UserStatus.ACTIVE, encodedPwd, staffRole);
 
-        UserEntity buyer = createUser("buyer@flashtix.vn", "An Nguyen", "0911222333",
+        UserEntity buyer = createUser("buyer@flashtix.vn", "Nguyễn Hoàng An", "0911222333",
                 UserStatus.ACTIVE, encodedPwd, customerRole);
-        UserEntity linh = createUser("linh.tran@flashtix.vn", "Linh Tran", "0911222444",
+        UserEntity linh = createUser("linh.tran@flashtix.vn", "Trần Khánh Linh", "0911222444",
                 UserStatus.ACTIVE, encodedPwd, customerRole);
-        UserEntity hoang = createUser("hoang.pham@flashtix.vn", "Hoang Pham", "0911222555",
+        UserEntity hoang = createUser("hoang.pham@flashtix.vn", "Phạm Minh Hoàng", "0911222555",
                 UserStatus.ACTIVE, encodedPwd, customerRole);
-        createUser("locked.user@flashtix.vn", "Suspicious Bot Account", "0999000999",
+        createUser("locked.user@flashtix.vn", "Tài khoản vi phạm (Đã khóa)", "0999000999",
                 UserStatus.LOCKED, encodedPwd, customerRole);
 
         // Venues
         VenueEntity phuTho = createVenue(organizer1.getId(),
-                "Phu Tho Indoor Stadium",
-                "1 Ly Thuong Kiet, District 11, Ho Chi Minh City",
-                "Premier multi-purpose indoor arena in Ho Chi Minh City for live concerts and esports.",
+                "Nhà thi đấu Phú Thọ",
+                "Số 1 Lý Thường Kiệt, Quận 11, TP. Hồ Chí Minh",
+                "Nhà thi đấu đa năng quy mô lớn tại TP.HCM, chuyên tổ chức các đại nhạc hội, concert và giải đấu eSports.",
                 5000);
         VenueEntity secc = createVenue(organizer2.getId(),
-                "Saigon Exhibition & Convention Center (SECC)",
-                "799 Nguyen Van Linh, District 7, Ho Chi Minh City",
-                "International-standard convention complex for tech summits and trade exhibitions.",
+                "Trung tâm Hội chợ & Triển lãm Sài Gòn (SECC)",
+                "799 Nguyễn Văn Linh, Quận 7, TP. Hồ Chí Minh",
+                "Tổ hợp hội nghị và triển lãm chuẩn quốc tế dành cho các sự kiện công nghệ và diễn đàn doanh nghiệp.",
                 2500);
         VenueEntity myDinh = createVenue(organizer1.getId(),
-                "My Dinh National Stadium",
-                "Le Duc Tho, Nam Tu Liem, Hanoi",
-                "Vietnam national outdoor stadium hosting major football matches and stadium tours.",
+                "Sân vận động Quốc gia Mỹ Đình",
+                "Đường Lê Đức Thọ, Nam Từ Liêm, Hà Nội",
+                "Sân vận động quốc gia sức chứa lớn phục vụ các trận cầu đỉnh cao và tour diễn ngoài trời.",
                 40000);
         VenueEntity hoaBinh = createVenue(organizer1.getId(),
-                "Hoa Binh Theater",
-                "240 Ba Thang Hai, District 10, Ho Chi Minh City",
-                "Classic acoustic auditorium ideal for symphony, orchestral, and theatrical performances.",
+                "Nhà hát Hòa Bình",
+                "240 Ba Tháng Hai, Quận 10, TP. Hồ Chí Minh",
+                "Khán phòng nghệ thuật với hệ thống âm thanh chuẩn thính phòng, phù hợp cho hòa nhạc giao hưởng và sân khấu kịch.",
                 2000);
 
         // Event 1: Flash Sale Music Concert (Waiting Room Enabled, Next 7 Days)
         EventEntity neonPulse = createEvent(
                 organizer1.getId(), phuTho.getId(),
-                "Neon Pulse World Tour - Ho Chi Minh City",
+                "Đêm Nhạc Neon Pulse World Tour — TP.HCM",
                 "neon-pulse-world-tour-hcmc",
                 "Music",
-                "Experience an unforgettable 3-hour electronic and pop spectacle with 360-degree stage lighting, "
-                        + "live orchestra backing, and synchronized LED wristbands. Virtual waiting room active for peak demand.",
+                "Trải nghiệm đại nhạc hội điện tử và pop kéo dài 3 giờ với sân khấu 360 độ, dàn nhạc giao hưởng kết hợp "
+                        + "và hệ thống vòng tay ánh sáng đồng bộ. Sự kiện áp dụng phòng chờ ảo để đảm bảo công bằng khi săn vé.",
                 now.plus(5, ChronoUnit.DAYS), now.plus(5, ChronoUnit.DAYS).plus(4, ChronoUnit.HOURS),
                 now.minus(2, ChronoUnit.DAYS), now.plus(5, ChronoUnit.DAYS).minus(2, ChronoUnit.HOURS),
                 true, 250, 6, EventStatus.SALES_OPEN);
 
         List<SeatEntity> neonVip = createSectionWithSeats(
-                neonPulse.getId(), "VIP Front Stage", 2_500_000L, "RESERVED", new String[]{"A", "B"}, 10);
+                neonPulse.getId(), "Khu VIP Sát Sân Khấu", 2_500_000L, "RESERVED", new String[]{"A", "B"}, 10);
         List<SeatEntity> neonCat1 = createSectionWithSeats(
-                neonPulse.getId(), "CAT 1 Seated", 1_500_000L, "RESERVED", new String[]{"C", "D", "E"}, 10);
+                neonPulse.getId(), "Khu CAT 1 Khán Đài", 1_500_000L, "RESERVED", new String[]{"C", "D", "E"}, 10);
         List<SeatEntity> neonCat2 = createSectionWithSeats(
-                neonPulse.getId(), "CAT 2 Balcony", 850_000L, "RESERVED", new String[]{"F", "G"}, 10);
+                neonPulse.getId(), "Khu CAT 2 Tầng Trên", 850_000L, "RESERVED", new String[]{"F", "G"}, 10);
         TicketTypeEntity neonGa = createTicketType(
-                neonPulse.getId(), null, "Early Bird Standing Pit", 650_000L, 200, "GENERAL_ADMISSION");
+                neonPulse.getId(), null, "Vé Đứng Early Bird", 650_000L, 200, "GENERAL_ADMISSION");
 
         blockSeats(List.of(neonCat2.get(18), neonCat2.get(19)));
 
         // Event 2: Tech Conference (No Waiting Room, Next 7 Days, supports Reserved + GA + active HELD seats)
         EventEntity cloudSummit = createEvent(
                 organizer2.getId(), secc.getId(),
-                "Vietnam Cloud & AI Summit 2026",
+                "Hội Nghị Vietnam Cloud & AI Summit 2026",
                 "vietnam-cloud-ai-summit-2026",
                 "Tech",
-                "Annual engineering conference featuring 40+ deep-dive talks on distributed systems, "
-                        + "Kubernetes, LLM inference at scale, and high-throughput PostgreSQL architectures.",
+                "Hội nghị kỹ thuật thường niên quy tụ hơn 40 phiên chia sẻ chuyên sâu về hệ thống phân tán, "
+                        + "Kubernetes, vận hành LLM quy mô lớn và tối ưu kiến trúc PostgreSQL chịu tải cao.",
                 now.plus(3, ChronoUnit.DAYS), now.plus(3, ChronoUnit.DAYS).plus(8, ChronoUnit.HOURS),
                 now.minus(5, ChronoUnit.DAYS), now.plus(3, ChronoUnit.DAYS).minus(1, ChronoUnit.HOURS),
                 false, 500, 6, EventStatus.SALES_OPEN);
 
         List<SeatEntity> summitExec = createSectionWithSeats(
-                cloudSummit.getId(), "Executive Lounge", 3_200_000L, "RESERVED", new String[]{"A", "B"}, 8);
+                cloudSummit.getId(), "Khu Executive Lounge", 3_200_000L, "RESERVED", new String[]{"A", "B"}, 8);
         List<SeatEntity> summitStd = createSectionWithSeats(
-                cloudSummit.getId(), "Standard Conference", 1_200_000L, "RESERVED", new String[]{"C", "D", "E", "F"}, 10);
+                cloudSummit.getId(), "Khu Hội Thảo Tiêu Chuẩn", 1_200_000L, "RESERVED", new String[]{"C", "D", "E", "F"}, 10);
         TicketTypeEntity summitStudentGa = createTicketType(
-                cloudSummit.getId(), null, "Student Developer Pass", 450_000L, 150, "GENERAL_ADMISSION");
+                cloudSummit.getId(), null, "Vé Sinh Viên & Lập Trình Viên", 450_000L, 150, "GENERAL_ADMISSION");
 
         // Event 3: Sports Match (Later this month)
         EventEntity charityMatch = createEvent(
                 organizer1.getId(), myDinh.getId(),
-                "V-League All-Star Charity Match 2026",
+                "Trận Cầu Giao Hữu V-League All-Star 2026",
                 "v-league-all-star-charity-2026",
                 "Sports",
-                "National football legends and V-League stars unite in Hanoi for a charitable exhibition match "
-                        + "supporting youth grassroots academies.",
+                "Quy tụ các danh thủ và ngôi sao V-League tại sân Mỹ Đình trong trận đấu giao hữu gây quỹ "
+                        + "phát triển bóng đá học đường trên toàn quốc.",
                 now.plus(14, ChronoUnit.DAYS), now.plus(14, ChronoUnit.DAYS).plus(3, ChronoUnit.HOURS),
                 now.minus(3, ChronoUnit.DAYS), now.plus(13, ChronoUnit.DAYS),
                 false, 1000, 6, EventStatus.SALES_OPEN);
 
         List<SeatEntity> matchVip = createSectionWithSeats(
-                charityMatch.getId(), "VIP Skybox", 1_800_000L, "RESERVED", new String[]{"A", "B"}, 8);
+                charityMatch.getId(), "Khán Đài VIP", 1_800_000L, "RESERVED", new String[]{"A", "B"}, 8);
         List<SeatEntity> matchGrandstand = createSectionWithSeats(
-                charityMatch.getId(), "Grandstand A", 600_000L, "RESERVED", new String[]{"C", "D", "E"}, 10);
+                charityMatch.getId(), "Khán Đài A", 600_000L, "RESERVED", new String[]{"C", "D", "E"}, 10);
         TicketTypeEntity matchGa = createTicketType(
-                charityMatch.getId(), null, "North Fan Zone Standing", 350_000L, 300, "GENERAL_ADMISSION");
+                charityMatch.getId(), null, "Vé Cổ Động Viên Khán Đài Bắc", 350_000L, 300, "GENERAL_ADMISSION");
 
         // Event 4: Theater Symphony (PUBLISHED)
         EventEntity symphony = createEvent(
                 organizer1.getId(), hoaBinh.getId(),
-                "Autumn Symphony Night: Chopin & Mozart",
+                "Đêm Nhạc Giao Hưởng Mùa Thu: Chopin & Mozart",
                 "autumn-symphony-night-2026",
                 "Theater",
-                "An intimate candlelit classical evening performed by the Saigon Chamber Philharmonic with guest soloists.",
+                "Không gian hòa nhạc thính phòng ấm cúng dưới ánh nến do Dàn nhạc Giao hưởng Sài Gòn trình diễn cùng các nghệ sĩ độc tấu.",
                 now.plus(21, ChronoUnit.DAYS), now.plus(21, ChronoUnit.DAYS).plus(2, ChronoUnit.HOURS),
                 now.minus(1, ChronoUnit.DAYS), now.plus(20, ChronoUnit.DAYS),
                 false, 300, 4, EventStatus.PUBLISHED);
 
         List<SeatEntity> symphonyOrch = createSectionWithSeats(
-                symphony.getId(), "Orchestra Gold", 2_200_000L, "RESERVED", new String[]{"A", "B"}, 10);
+                symphony.getId(), "Hàng Ghế Vàng Orchestra", 2_200_000L, "RESERVED", new String[]{"A", "B"}, 10);
         createSectionWithSeats(
-                symphony.getId(), "Mezzanine Balcony", 950_000L, "RESERVED", new String[]{"C", "D"}, 12);
+                symphony.getId(), "Ban Công Tầng 2", 950_000L, "RESERVED", new String[]{"C", "D"}, 12);
 
         // Event 5: Imminent Event (SALES_CLOSED, tomorrow — check-in active)
         EventEntity indieNight = createEvent(
                 organizer1.getId(), hoaBinh.getId(),
-                "Midnight Indie Acoustic Session",
+                "Đêm Nhạc Acoustic Nửa Đêm — Phiên Bản Giới Hạn",
                 "midnight-indie-acoustic-session",
                 "Music",
-                "Sold-out pre-show acoustic gathering with stripped-back sets from Vietnam's top indie songwriters.",
+                "Buổi biểu diễn acoustic thân mật đã bán hết vé với sự góp mặt của những giọng ca indie được yêu thích nhất.",
                 now.plus(18, ChronoUnit.HOURS), now.plus(22, ChronoUnit.HOURS),
                 now.minus(14, ChronoUnit.DAYS), now.minus(1, ChronoUnit.HOURS),
                 false, 200, 4, EventStatus.SALES_CLOSED);
 
         List<SeatEntity> indieSeats = createSectionWithSeats(
-                indieNight.getId(), "Acoustic Pit", 900_000L, "RESERVED", new String[]{"A", "B"}, 10);
+                indieNight.getId(), "Khu Sân Khấu Gần", 900_000L, "RESERVED", new String[]{"A", "B"}, 10);
         blockSeats(List.of(indieSeats.get(19)));
 
         // Event 6: Past Completed Event (COMPLETED — populated analytics + check-in logs)
         EventEntity pitchDay = createEvent(
                 organizer2.getId(), secc.getId(),
-                "TechCrunch Vietnam Pitch Day 2026",
+                "Ngày Hội Khởi Nghiệp TechCrunch Vietnam 2026",
                 "techcrunch-vietnam-pitch-day-2026",
                 "Tech",
-                "Completed startup showcase with 15 Seed/Series-A founders pitching live before Southeast Asian VC partners.",
+                "Sự kiện gọi vốn thường niên quy tụ 15 startup nổi bật trình bày trực tiếp trước các quỹ đầu tư khu vực Đông Nam Á.",
                 now.minus(10, ChronoUnit.DAYS), now.minus(9, ChronoUnit.DAYS),
                 now.minus(30, ChronoUnit.DAYS), now.minus(10, ChronoUnit.DAYS),
                 false, 300, 6, EventStatus.COMPLETED);
 
         List<SeatEntity> pitchSeats = createSectionWithSeats(
-                pitchDay.getId(), "Main Auditorium", 1_000_000L, "RESERVED", new String[]{"A", "B"}, 10);
+                pitchDay.getId(), "Hội Trường Chính", 1_000_000L, "RESERVED", new String[]{"A", "B"}, 10);
 
         // Assign check-in staff across events
         assignStaff(organizer1.getId(), List.of(neonPulse, charityMatch, indieNight), staff1.getId(), staff2.getId());
@@ -342,7 +342,7 @@ public class DemoDataSeeder implements ApplicationRunner {
                 .payloadHash(JwtTokenProvider.sha256Hex("{\"orderCode\":\"ORD-UNKNOWN\",\"status\":\"PAID\"}"))
                 .rawPayload("{\"orderCode\":\"ORD-UNKNOWN\",\"amount\":1500000,\"status\":\"PAID\"}")
                 .status("FAILED")
-                .errorMessage("Invalid webhook HMAC signature")
+                .errorMessage("Chữ ký HMAC webhook không hợp lệ")
                 .receivedAt(now.minus(2, ChronoUnit.HOURS))
                 .build());
 
@@ -366,24 +366,24 @@ public class DemoDataSeeder implements ApplicationRunner {
 
         // Notifications for buyer, linh, hoang
         seedNotification(buyer.getId(), "TICKETS_ISSUED",
-                "Tickets Issued: Neon Pulse World Tour",
-                "Your VIP Front Stage tickets (A01, A02) are ready with signed QR passes.", false);
+                "Đã phát hành vé: Đêm Nhạc Neon Pulse World Tour",
+                "Hai vé Khu VIP Sát Sân Khấu (A01, A02) của bạn đã sẵn sàng kèm mã QR check-in.", false);
         seedNotification(buyer.getId(), "EVENT_REMINDER_24H",
-                "Reminder: Midnight Indie Acoustic Session starts tomorrow",
-                "Doors open 60 minutes early at Hoa Binh Theater. Have your QR code ready.", false);
+                "Nhắc lịch: Đêm Nhạc Acoustic Nửa Đêm diễn ra vào ngày mai",
+                "Cổng soát vé tại Nhà hát Hòa Bình sẽ mở sớm trước 60 phút. Bạn nhớ chuẩn bị sẵn mã QR nhé.", false);
         seedNotification(buyer.getId(), "RESERVATION_EXPIRING",
-                "Complete payment for Vietnam Cloud & AI Summit 2026",
-                "Seats C01, C02 are currently held for your pending order. Checkout before the timer ends.", false);
+                "Hoàn tất thanh toán đơn Hội Nghị Vietnam Cloud & AI Summit 2026",
+                "Ghế C01, C02 đang được giữ cho đơn hàng của bạn. Vui lòng thanh toán trước khi hết thời gian giữ chỗ.", false);
         seedNotification(buyer.getId(), "TICKETS_ISSUED",
-                "Tickets Issued: TechCrunch Vietnam Pitch Day 2026",
-                "Thank you for attending TechCrunch Vietnam Pitch Day 2026.", true);
+                "Đã phát hành vé: Ngày Hội Khởi Nghiệp TechCrunch Vietnam 2026",
+                "Cảm ơn bạn đã tham dự Ngày Hội Khởi Nghiệp TechCrunch Vietnam 2026.", true);
 
         seedNotification(linh.getId(), "PAYMENT_REFUNDED",
-                "Refund Completed: V-League All-Star Charity Match",
-                "600,000 VND has been refunded to your original payment method.", false);
+                "Hoàn tiền thành công: Trận Cầu Giao Hữu V-League All-Star",
+                "Số tiền 600.000 đ đã được hoàn về phương thức thanh toán ban đầu của bạn.", false);
         seedNotification(hoang.getId(), "REFUND_PENDING",
-                "Late Payment Received After Hold Expiry",
-                "Your payment for V-League All-Star Charity Match arrived after hold expiration and is queued for refund.", false);
+                "Thanh toán ghi nhận sau khi hết hạn giữ chỗ",
+                "Giao dịch cho đơn Trận Cầu Giao Hữu V-League All-Star được ghi nhận sau khi hết thời gian giữ ghế và đang chờ hoàn tiền.", false);
 
         // Audit logs & published outbox events
         seedAuditLog(organizer1.getId(), "EVENT_PUBLISHED", "EVENT", neonPulse.getId(),
@@ -728,7 +728,7 @@ public class DemoDataSeeder implements ApplicationRunner {
                 .idempotencyKey("seed-fail-" + order.getOrderCode())
                 .amount(total)
                 .status(PaymentStatus.FAILED)
-                .failureReason("Insufficient funds / Card declined in sandbox")
+                .failureReason("Thẻ không đủ số dư hoặc bị từ chối trong môi trường thử nghiệm")
                 .build());
     }
 
@@ -773,7 +773,7 @@ public class DemoDataSeeder implements ApplicationRunner {
                 .idempotencyKey("seed-idem-" + order.getOrderCode())
                 .amount(unitPrice)
                 .status(PaymentStatus.SUCCESS)
-                .failureReason("Payment settled after reservation expiry; awaiting refund")
+                .failureReason("Thanh toán ghi nhận sau khi hết hạn giữ chỗ; đang chờ hoàn tiền")
                 .build());
 
         recordProcessedWebhook(PaymentProvider.PAYOS, payment, order);
@@ -898,7 +898,7 @@ public class DemoDataSeeder implements ApplicationRunner {
                     .staffId(checkInStaff.getId())
                     .eventId(eventId)
                     .checkedInAt(ticket.getCheckedInAt())
-                    .deviceInfo("Zebra TC21 Gate Scanner #01")
+                    .deviceInfo("Máy quét cổng số 01 (Zebra TC21)")
                     .build());
         }
     }

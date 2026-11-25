@@ -13,10 +13,10 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 const registerSchema = z.object({
-  fullName: z.string().min(2, "Full name is required"),
-  email: z.string().email("Invalid email address"),
+  fullName: z.string().min(2, "Vui lòng nhập họ và tên"),
+  email: z.string().email("Địa chỉ email không hợp lệ"),
   phone: z.string().optional(),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  password: z.string().min(8, "Mật khẩu phải có ít nhất 8 ký tự"),
   organizer: z.boolean().optional(),
 });
 
@@ -41,7 +41,7 @@ export default function RegisterPage() {
       setAuth(user, accessToken);
       router.push("/");
     } catch (err) {
-      setErrorMsg(extractErrorMessage(err, "Registration failed"));
+      setErrorMsg(extractErrorMessage(err, "Đăng ký tài khoản thất bại"));
     }
   };
 
@@ -49,8 +49,8 @@ export default function RegisterPage() {
     <div className="mx-auto max-w-md py-8">
       <Card>
         <CardHeader>
-          <h1 className="text-xl font-bold">Create Account</h1>
-          <p className="text-sm text-slate-500">Join FlashTix as a customer or event organizer</p>
+          <h1 className="text-xl font-bold">Tạo tài khoản mới</h1>
+          <p className="text-sm text-slate-500">Tham gia FlashTix với vai trò Khách hàng hoặc Ban tổ chức</p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -58,11 +58,11 @@ export default function RegisterPage() {
               <div className="rounded-lg bg-rose-50 p-3 text-sm text-rose-700">{errorMsg}</div>
             )}
             <div>
-              <label className="mb-1 block text-sm font-medium">Full Name</label>
+              <label className="mb-1 block text-sm font-medium">Họ và tên</label>
               <input
                 {...register("fullName")}
                 className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-                placeholder="Nguyen Van A"
+                placeholder="Nguyễn Văn An"
               />
               {errors.fullName && <p className="mt-1 text-xs text-rose-600">{errors.fullName.message}</p>}
             </div>
@@ -72,12 +72,12 @@ export default function RegisterPage() {
                 type="email"
                 {...register("email")}
                 className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-                placeholder="you@example.com"
+                placeholder="ban@example.com"
               />
               {errors.email && <p className="mt-1 text-xs text-rose-600">{errors.email.message}</p>}
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium">Phone (optional)</label>
+              <label className="mb-1 block text-sm font-medium">Số điện thoại (không bắt buộc)</label>
               <input
                 {...register("phone")}
                 className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
@@ -85,26 +85,27 @@ export default function RegisterPage() {
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium">Password</label>
+              <label className="mb-1 block text-sm font-medium">Mật khẩu</label>
               <input
                 type="password"
                 {...register("password")}
                 className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                placeholder="Tối thiểu 8 ký tự"
               />
               {errors.password && <p className="mt-1 text-xs text-rose-600">{errors.password.message}</p>}
             </div>
             <label className="flex items-center gap-2 text-sm text-slate-700">
               <input type="checkbox" {...register("organizer")} className="rounded border-slate-300" />
-              <span>Register also as an Event Organizer</span>
+              <span>Đăng ký kèm quyền Ban tổ chức sự kiện</span>
             </label>
             <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? "Creating account..." : "Create Account"}
+              {isSubmitting ? "Đang tạo tài khoản..." : "Đăng ký tài khoản"}
             </Button>
           </form>
           <p className="mt-4 text-center text-sm text-slate-600">
-            Already registered?{" "}
+            Đã có tài khoản?{" "}
             <Link href="/login" className="font-medium text-indigo-600 hover:underline">
-              Sign in
+              Đăng nhập
             </Link>
           </p>
         </CardContent>

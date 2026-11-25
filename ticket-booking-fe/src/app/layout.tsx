@@ -4,13 +4,13 @@ import { Providers } from "@/components/providers";
 import { Navbar } from "@/components/navbar";
 
 export const metadata: Metadata = {
-  title: "FlashTix | Event Ticketing & Flash Sale Platform",
-  description: "High-concurrency event ticket booking and virtual waiting room platform",
+  title: "FlashTix | Nền tảng Đặt vé Sự kiện & Flash Sale",
+  description: "Hệ thống đặt vé sự kiện trực tuyến chịu tải cao với sơ đồ ghế thời gian thực và phòng chờ ảo",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="vi">
       <body className="min-h-screen bg-slate-50 text-slate-900 antialiased">
         <Providers>
           <Navbar />

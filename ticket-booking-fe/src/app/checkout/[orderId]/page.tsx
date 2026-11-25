@@ -5,11 +5,17 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { CheckCircle2, CreditCard, ShieldAlert } from "lucide-react";
 import { api, extractErrorMessage } from "@/lib/api";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, formatOrderStatus } from "@/lib/utils";
 import { ApiEnvelope, CheckoutResponse, OrderResponse } from "@/types";
 import { Badge, Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CountdownTimer } from "@/components/countdown/countdown-timer";
+
+const PROVIDERS: Array<{ id: "PAYOS" | "VNPAY" | "SANDBOX"; label: string }> = [
+  { id: "PAYOS", label: "PayOS (VietQR)" },
+  { id: "VNPAY", label: "VNPAY" },
+  { id: "SANDBOX", label: "Cổng thử nghiệm" },
+];
 
 export default function CheckoutPage() {
   const { orderId } = useParams<{ orderId: string }>();
@@ -50,7 +56,7 @@ export default function CheckoutPage() {
         window.location.href = data.paymentUrl;
       }
     } catch (err) {
-      setErrorMsg(extractErrorMessage(err, "Checkout failed"));
+      setErrorMsg(extractErrorMessage(err, "Khởi tạo thanh toán thất bại"));
     } finally {
       setBusy(false);
     }
@@ -67,7 +73,7 @@ export default function CheckoutPage() {
         router.push("/my-tickets");
       }
     } catch (err) {
-      setErrorMsg(extractErrorMessage(err, "Sandbox payment simulation failed"));
+      setErrorMsg(extractErrorMessage(err, "Giả lập thanh toán thất bại"));
     } finally {
       setBusy(false);
     }
@@ -81,16 +87,16 @@ export default function CheckoutPage() {
     <div className="mx-auto max-w-2xl space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Checkout — {order.orderCode}</h1>
+          <h1 className="text-2xl font-bold">Thanh toán — {order.orderCode}</h1>
           <p className="text-sm text-slate-500">{order.eventName}</p>
         </div>
         <Badge tone={order.status === "PAID" ? "success" : order.status === "PENDING_PAYMENT" ? "warning" : "danger"}>
-          {order.status}
+          {formatOrderStatus(order.status)}
         </Badge>
       </div>
 
       {order.reservationExpiresAt && order.status === "PENDING_PAYMENT" && (
-        <CountdownTimer expiresAt={order.reservationExpiresAt} label="Complete payment within" />
+        <CountdownTimer expiresAt={order.reservationExpiresAt} label="Vui lòng thanh toán trong" />
       )}
 
       {errorMsg && (
@@ -102,17 +108,17 @@ export default function CheckoutPage() {
 
       <Card>
         <CardHeader>
-          <h2 className="font-semibold">Order Summary</h2>
+          <h2 className="font-semibold">Chi tiết đơn hàng</h2>
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
           {order.items.map((item, idx) => (
             <div key={idx} className="flex justify-between">
-              <span>Seat {item.seatCode || "-"} (x{item.quantity})</span>
+              <span>{item.seatCode ? `Ghế ${item.seatCode}` : "Vé tự do"} (x{item.quantity})</span>
               <span className="font-medium">{formatCurrency(item.subtotal, order.currency)}</span>
             </div>
           ))}
           <div className="flex justify-between border-t border-slate-100 pt-3 text-base font-bold">
-            <span>Total Payable</span>
+            <span>Tổng thanh toán</span>
             <span className="text-indigo-600">{formatCurrency(order.totalAmount, order.currency)}</span>
           </div>
         </CardContent>
@@ -122,29 +128,29 @@ export default function CheckoutPage() {
         <Card>
           <CardContent className="flex flex-col items-center gap-3 py-8 text-center">
             <CheckCircle2 className="h-12 w-12 text-emerald-600" />
-            <p className="font-semibold text-emerald-700">Payment Confirmed & Tickets Issued!</p>
-            <Button onClick={() => router.push("/my-tickets")}>View My Tickets</Button>
+            <p className="font-semibold text-emerald-700">Thanh toán thành công &amp; Vé điện tử đã được phát hành!</p>
+            <Button onClick={() => router.push("/my-tickets")}>Xem vé của tôi</Button>
           </CardContent>
         </Card>
       ) : order.status === "PENDING_PAYMENT" ? (
         <Card>
           <CardHeader>
-            <h2 className="font-semibold">Select Payment Provider</h2>
+            <h2 className="font-semibold">Chọn phương thức thanh toán</h2>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-3 gap-3">
-              {(["PAYOS", "VNPAY", "SANDBOX"] as const).map((p) => (
+              {PROVIDERS.map((p) => (
                 <button
-                  key={p}
+                  key={p.id}
                   type="button"
-                  onClick={() => setProvider(p)}
+                  onClick={() => setProvider(p.id)}
                   className={`rounded-xl border p-3 text-sm font-semibold transition cursor-pointer ${
-                    provider === p
+                    provider === p.id
                       ? "border-indigo-600 bg-indigo-50 text-indigo-700"
                       : "border-slate-200 hover:bg-slate-50"
                   }`}
                 >
-                  {p}
+                  {p.label}
                 </button>
               ))}
             </div>
@@ -152,22 +158,22 @@ export default function CheckoutPage() {
             {!sandboxPaymentId ? (
               <Button className="w-full" size="lg" disabled={busy} onClick={handleCheckout}>
                 <CreditCard className="h-4 w-4" />
-                {busy ? "Initiating Payment..." : `Pay ${formatCurrency(order.totalAmount, order.currency)}`}
+                {busy ? "Đang chuyển sang cổng thanh toán..." : `Thanh toán ${formatCurrency(order.totalAmount, order.currency)}`}
               </Button>
             ) : (
               <div className="space-y-3 rounded-xl border border-indigo-200 bg-indigo-50 p-4">
                 <p className="text-sm font-semibold text-indigo-900">
-                  Sandbox Payment Simulator ({checkoutRes?.provider || provider})
+                  Trình giả lập thanh toán Sandbox ({checkoutRes?.provider || provider})
                 </p>
                 <p className="text-xs text-indigo-700">
-                  Simulates signed provider webhook callback to backend with idempotency verification.
+                  Mô phỏng callback webhook có chữ ký số gửi về hệ thống kèm kiểm tra idempotency.
                 </p>
                 <div className="flex gap-3">
                   <Button className="flex-1" disabled={busy} onClick={() => handleSimulateSandbox(true)}>
-                    Simulate Payment Success
+                    Giả lập thanh toán thành công
                   </Button>
                   <Button variant="danger" className="flex-1" disabled={busy} onClick={() => handleSimulateSandbox(false)}>
-                    Simulate Failure
+                    Giả lập thất bại
                   </Button>
                 </div>
               </div>

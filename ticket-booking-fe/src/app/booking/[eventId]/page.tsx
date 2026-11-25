@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { AlertCircle, Wifi, WifiOff } from "lucide-react";
 import { api, extractErrorMessage } from "@/lib/api";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, formatSeatStatus } from "@/lib/utils";
 import { useStompSubscription } from "@/hooks/use-stomp";
 import { ApiEnvelope, EventItem, OrderResponse, ReservationResponse, SeatMapResponse, SeatNode } from "@/types";
 import { Badge, Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -58,7 +58,6 @@ export default function SeatBookingPage() {
     `/topic/events/${eventId}/seats`,
     handleWsMessage,
     () => {
-      // Section 12.3 / 15.6: Always refetch seat map on WebSocket reconnect
       refetchSeatMap();
     }
   );
@@ -78,7 +77,7 @@ export default function SeatBookingPage() {
       if (prev.includes(seat.id)) return prev.filter((id) => id !== seat.id);
       const maxSeats = event?.maxSeatsPerReservation ?? 6;
       if (prev.length >= maxSeats) {
-        setErrorMsg(`You can select at most ${maxSeats} seats per reservation.`);
+        setErrorMsg(`Bạn chỉ được chọn tối đa ${maxSeats} ghế trong một lần giữ chỗ.`);
         return prev;
       }
       return [...prev, seat.id];
@@ -98,7 +97,7 @@ export default function SeatBookingPage() {
       setReservation(res.data.data);
       refetchSeatMap();
     } catch (err) {
-      setErrorMsg(extractErrorMessage(err, "Failed to reserve seats. Some seats may have just been taken."));
+      setErrorMsg(extractErrorMessage(err, "Không thể giữ ghế. Một số ghế có thể vừa có người khác đặt."));
       refetchSeatMap();
     } finally {
       setBusy(false);
@@ -115,7 +114,7 @@ export default function SeatBookingPage() {
       });
       router.push(`/checkout/${res.data.data.id}`);
     } catch (err) {
-      setErrorMsg(extractErrorMessage(err, "Could not create order"));
+      setErrorMsg(extractErrorMessage(err, "Không thể tạo đơn hàng"));
     } finally {
       setBusy(false);
     }
@@ -141,20 +140,20 @@ export default function SeatBookingPage() {
       <div className="space-y-6 lg:col-span-2">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold">{event?.name || "Select Your Seats"}</h1>
-            <p className="text-sm text-slate-500">Click available seats below to hold them for 10 minutes.</p>
+            <h1 className="text-2xl font-bold">{event?.name || "Chọn vị trí ghế ngồi"}</h1>
+            <p className="text-sm text-slate-500">Nhấn vào các ghế còn trống bên dưới để giữ chỗ trong 10 phút.</p>
           </div>
           <Badge tone={connected ? "success" : "warning"} className="gap-1.5">
             {connected ? <Wifi className="h-3.5 w-3.5" /> : <WifiOff className="h-3.5 w-3.5" />}
-            {connected ? "Live Updates On" : "Reconnecting..."}
+            {connected ? "Cập nhật trực tiếp" : "Đang kết nối lại..."}
           </Badge>
         </div>
 
         <div className="flex flex-wrap gap-4 rounded-xl border border-slate-200 bg-white p-3 text-xs font-medium">
-          <span className="flex items-center gap-1.5"><span className="h-4 w-4 rounded bg-emerald-100 border border-emerald-400" /> Available</span>
-          <span className="flex items-center gap-1.5"><span className="h-4 w-4 rounded bg-indigo-600" /> Selected</span>
-          <span className="flex items-center gap-1.5"><span className="h-4 w-4 rounded bg-amber-200 border border-amber-400" /> Held</span>
-          <span className="flex items-center gap-1.5"><span className="h-4 w-4 rounded bg-slate-300" /> Sold / Blocked</span>
+          <span className="flex items-center gap-1.5"><span className="h-4 w-4 rounded bg-emerald-100 border border-emerald-400" /> Còn trống</span>
+          <span className="flex items-center gap-1.5"><span className="h-4 w-4 rounded bg-indigo-600" /> Đang chọn</span>
+          <span className="flex items-center gap-1.5"><span className="h-4 w-4 rounded bg-amber-200 border border-amber-400" /> Đang được giữ</span>
+          <span className="flex items-center gap-1.5"><span className="h-4 w-4 rounded bg-slate-300" /> Đã bán / Tạm khóa</span>
         </div>
 
         {errorMsg && (
@@ -169,7 +168,7 @@ export default function SeatBookingPage() {
         ) : (
           <div className="space-y-6">
             <div className="rounded-xl bg-slate-800 py-2 text-center text-xs font-semibold tracking-widest text-slate-200 uppercase">
-              STAGE / MAIN SCREEN
+              SÂN KHẤU CHÍNH / MÀN HÌNH
             </div>
             {seatMap?.sections.map((sec) => (
               <Card key={sec.sectionId}>
@@ -195,7 +194,7 @@ export default function SeatBookingPage() {
                           type="button"
                           disabled={seat.status !== "AVAILABLE" || !!reservation}
                           onClick={() => toggleSeat(seat)}
-                          title={`${seat.seatCode} (${seat.status})`}
+                          title={`${seat.seatCode} (${formatSeatStatus(seat.status)})`}
                           className={`rounded-lg border px-2 py-2 text-xs font-semibold transition ${style}`}
                         >
                           {seat.seatCode}
@@ -213,18 +212,18 @@ export default function SeatBookingPage() {
       <div>
         <Card className="sticky top-24">
           <CardHeader>
-            <h3 className="font-semibold">Your Selection</h3>
+            <h3 className="font-semibold">Ghế đã chọn</h3>
           </CardHeader>
           <CardContent className="space-y-4">
             {reservation ? (
               <div className="space-y-4">
                 <CountdownTimer
                   expiresAt={reservation.expiresAt}
-                  label="Hold expires in"
+                  label="Hết hạn giữ ghế sau"
                   onExpire={() => {
                     setReservation(null);
                     setSelectedIds([]);
-                    setErrorMsg("Your reservation has expired. Please select seats again.");
+                    setErrorMsg("Đã hết thời gian giữ chỗ. Vui lòng chọn lại ghế.");
                     refetchSeatMap();
                   }}
                 />
@@ -237,11 +236,11 @@ export default function SeatBookingPage() {
                   ))}
                 </div>
                 <div className="flex justify-between border-t border-slate-100 pt-3 font-bold">
-                  <span>Total (Server Snapshot)</span>
+                  <span>Tổng thanh toán</span>
                   <span className="text-indigo-600">{formatCurrency(reservation.totalAmount)}</span>
                 </div>
                 <Button className="w-full" size="lg" disabled={busy} onClick={handleProceedOrder}>
-                  {busy ? "Creating Order..." : "Proceed to Checkout"}
+                  {busy ? "Đang tạo đơn hàng..." : "Tiếp tục thanh toán"}
                 </Button>
                 <Button
                   variant="outline"
@@ -249,20 +248,20 @@ export default function SeatBookingPage() {
                   disabled={busy}
                   onClick={handleCancelReservation}
                 >
-                  Release Seats
+                  Hủy giữ chỗ
                 </Button>
               </div>
             ) : (
               <div className="space-y-4">
                 {selectedIds.length === 0 ? (
-                  <p className="text-sm text-slate-500">No seats selected yet.</p>
+                  <p className="text-sm text-slate-500">Bạn chưa chọn ghế nào.</p>
                 ) : (
                   <div className="space-y-1 text-sm">
                     {selectedIds.map((id) => {
                       const s = seatLookup.get(id);
                       return (
                         <div key={id} className="flex justify-between">
-                          <span>Seat {s?.seatCode}</span>
+                          <span>Ghế {s?.seatCode}</span>
                           <span>{formatCurrency(s?.price ?? 0)}</span>
                         </div>
                       );
@@ -270,7 +269,7 @@ export default function SeatBookingPage() {
                   </div>
                 )}
                 <div className="flex justify-between border-t border-slate-100 pt-3 font-bold">
-                  <span>Estimated Total</span>
+                  <span>Tạm tính</span>
                   <span className="text-indigo-600">{formatCurrency(estimatedTotal)}</span>
                 </div>
                 <Button
@@ -279,7 +278,7 @@ export default function SeatBookingPage() {
                   disabled={selectedIds.length === 0 || busy}
                   onClick={handleReserve}
                 >
-                  {busy ? "Locking Seats..." : `Hold ${selectedIds.length} Seat(s)`}
+                  {busy ? "Đang giữ ghế..." : `Giữ ${selectedIds.length} ghế`}
                 </Button>
               </div>
             )}

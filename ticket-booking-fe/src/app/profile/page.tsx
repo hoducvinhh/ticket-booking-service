@@ -21,7 +21,7 @@ export default function ProfilePage() {
     try {
       const res = await api.patch<ApiEnvelope<UserProfile>>("/users/me", { fullName, phone });
       setAuth(res.data.data);
-      setMsg("Profile updated.");
+      setMsg("Đã cập nhật thông tin cá nhân.");
     } catch (err) {
       setMsg(extractErrorMessage(err));
     }
@@ -34,7 +34,7 @@ export default function ProfilePage() {
       await api.patch("/users/me/password", { currentPassword, newPassword });
       setCurrentPassword("");
       setNewPassword("");
-      setMsg("Password changed successfully.");
+      setMsg("Đổi mật khẩu thành công.");
     } catch (err) {
       setMsg(extractErrorMessage(err));
     }
@@ -42,10 +42,10 @@ export default function ProfilePage() {
 
   return (
     <div className="mx-auto max-w-xl space-y-6">
-      <h1 className="text-2xl font-bold">Profile Settings</h1>
+      <h1 className="text-2xl font-bold">Thiết lập tài khoản</h1>
       {msg && <div className="rounded-lg bg-indigo-50 p-3 text-sm text-indigo-800">{msg}</div>}
       <Card>
-        <CardHeader><h2 className="font-semibold">Personal Details</h2></CardHeader>
+        <CardHeader><h2 className="font-semibold">Thông tin cá nhân</h2></CardHeader>
         <CardContent>
           <form onSubmit={handleSaveProfile} className="space-y-4">
             <div>
@@ -53,26 +53,26 @@ export default function ProfilePage() {
               <input disabled value={user?.email || ""} className="w-full rounded-lg border bg-slate-100 px-3 py-2 text-sm" />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium">Full Name</label>
+              <label className="mb-1 block text-sm font-medium">Họ và tên</label>
               <input value={fullName} onChange={(e) => setFullName(e.target.value)} className="w-full rounded-lg border px-3 py-2 text-sm" />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium">Phone</label>
+              <label className="mb-1 block text-sm font-medium">Số điện thoại</label>
               <input value={phone} onChange={(e) => setPhone(e.target.value)} className="w-full rounded-lg border px-3 py-2 text-sm" />
             </div>
-            <Button type="submit">Save Changes</Button>
+            <Button type="submit">Lưu thay đổi</Button>
           </form>
         </CardContent>
       </Card>
 
       <Card>
-        <CardHeader><h2 className="font-semibold">Change Password</h2></CardHeader>
+        <CardHeader><h2 className="font-semibold">Đổi mật khẩu</h2></CardHeader>
         <CardContent>
           <form onSubmit={handleChangePassword} className="space-y-4">
             <input
               type="password"
               required
-              placeholder="Current password"
+              placeholder="Mật khẩu hiện tại"
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
               className="w-full rounded-lg border px-3 py-2 text-sm"
@@ -81,12 +81,12 @@ export default function ProfilePage() {
               type="password"
               required
               minLength={8}
-              placeholder="New password"
+              placeholder="Mật khẩu mới (tối thiểu 8 ký tự)"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               className="w-full rounded-lg border px-3 py-2 text-sm"
             />
-            <Button type="submit" variant="secondary">Update Password</Button>
+            <Button type="submit" variant="secondary">Cập nhật mật khẩu</Button>
           </form>
         </CardContent>
       </Card>

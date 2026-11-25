@@ -9,7 +9,7 @@ interface CountdownTimerProps {
   label?: string;
 }
 
-export function CountdownTimer({ expiresAt, onExpire, label = "Time remaining" }: CountdownTimerProps) {
+export function CountdownTimer({ expiresAt, onExpire, label = "Thời gian còn lại" }: CountdownTimerProps) {
   const [secondsLeft, setSecondsLeft] = useState<number>(() =>
     Math.max(0, Math.floor((new Date(expiresAt).getTime() - Date.now()) / 1000))
   );

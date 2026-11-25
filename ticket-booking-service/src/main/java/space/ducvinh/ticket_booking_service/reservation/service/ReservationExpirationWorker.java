@@ -67,8 +67,8 @@ public class ReservationExpirationWorker {
                     notificationService.createInAppNotification(
                             r.getUserId(),
                             "RESERVATION_EXPIRING",
-                            "Reservation Expiring Soon",
-                            "Your seat reservation expires soon. Complete checkout before " + r.getExpiresAt());
+                            "Sắp hết thời gian giữ ghế",
+                            "Thời gian giữ ghế của bạn sắp kết thúc. Vui lòng hoàn tất thanh toán trước " + r.getExpiresAt() + ".");
                     realtimeBroadcastService.sendUserNotification(
                             r.getUserId(),
                             "RESERVATION_EXPIRING",

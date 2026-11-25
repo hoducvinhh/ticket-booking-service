@@ -77,24 +77,24 @@ test("Full end-to-end ticket booking flow: Register -> Browse -> Reserve -> Chec
   // 3. Browse event and navigate to Event Detail -> Seat Booking
   await page.goto(`/events/${eventId}`);
   await expect(page.getByText(`E2E Concert ${unique}`)).toBeVisible();
-  await page.getByRole("button", { name: /Select Seats/i }).click();
+  await page.getByRole("button", { name: /Chọn ghế/i }).click();
   await page.waitForURL(`**/booking/${eventId}`);
 
   // 4. Select seat A01 and create reservation
   await page.getByRole("button", { name: "A01" }).click();
-  await page.getByRole("button", { name: /Hold 1 Seat/i }).click();
-  await expect(page.getByRole("button", { name: /Proceed to Checkout/i })).toBeVisible();
+  await page.getByRole("button", { name: /Giữ 1 ghế/i }).click();
+  await expect(page.getByRole("button", { name: /Tiếp tục thanh toán/i })).toBeVisible();
 
   // 5. Create order & Checkout with Sandbox Simulator
-  await page.getByRole("button", { name: /Proceed to Checkout/i }).click();
+  await page.getByRole("button", { name: /Tiếp tục thanh toán/i }).click();
   await page.waitForURL("**/checkout/**");
-  await page.getByRole("button", { name: /Pay /i }).click();
-  await page.getByRole("button", { name: /Simulate Payment Success/i }).click();
+  await page.getByRole("button", { name: /Thanh toán /i }).click();
+  await page.getByRole("button", { name: /Giả lập thanh toán thành công/i }).click();
 
   // 6. View Ticket & QR Pass
   await page.waitForURL("**/my-tickets");
   await expect(page.getByText(`E2E Concert ${unique}`)).toBeVisible();
-  await page.getByRole("button", { name: /Show QR Pass/i }).first().click();
+  await page.getByRole("button", { name: /Xem mã QR/i }).first().click();
   await page.waitForURL("**/my-tickets/**");
-  await expect(page.getByText("VALID")).toBeVisible();
+  await expect(page.getByText("Còn hiệu lực")).toBeVisible();
 });

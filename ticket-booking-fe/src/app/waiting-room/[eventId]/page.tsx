@@ -28,7 +28,7 @@ export default function WaitingRoomPage() {
           sessionStorage.setItem(`admission_token_${eventId}`, data.admissionToken);
         }
       })
-      .catch((err) => setError(extractErrorMessage(err, "Failed to join waiting room")));
+      .catch((err) => setError(extractErrorMessage(err, "Không thể tham gia hàng đợi phòng chờ")));
   }, [eventId]);
 
   useEffect(() => {
@@ -75,9 +75,9 @@ export default function WaitingRoomPage() {
     <div className="mx-auto max-w-xl py-10">
       <Card>
         <CardHeader>
-          <h1 className="text-xl font-bold">Virtual Waiting Room</h1>
+          <h1 className="text-xl font-bold">Phòng chờ ảo (Virtual Waiting Room)</h1>
           <p className="text-sm text-slate-500">
-            Traffic is queued fairly in order of arrival to protect booking stability.
+            Lượng truy cập đang được điều phối theo thứ tự xếp hàng để đảm bảo hệ thống đặt vé ổn định.
           </p>
         </CardHeader>
         <CardContent className="space-y-6 text-center">
@@ -86,20 +86,20 @@ export default function WaitingRoomPage() {
           ) : !status ? (
             <div className="flex flex-col items-center gap-3 py-8">
               <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
-              <p className="text-sm text-slate-600">Entering queue...</p>
+              <p className="text-sm text-slate-600">Đang lấy số thứ tự hàng đợi...</p>
             </div>
           ) : status.status === "ADMITTED" ? (
             <div className="space-y-4 py-4">
               <CheckCircle2 className="mx-auto h-12 w-12 text-emerald-600" />
-              <h2 className="text-lg font-bold text-emerald-700">It&apos;s Your Turn!</h2>
+              <h2 className="text-lg font-bold text-emerald-700">Đã đến lượt của bạn!</h2>
               <p className="text-sm text-slate-600">
-                Your admission token is active. Proceed to select your seats now.
+                Lượt vào đặt vé của bạn đã sẵn sàng. Hãy chọn ghế ngay trước khi hết thời gian hiệu lực.
               </p>
               {status.tokenExpiresAt && (
-                <CountdownTimer expiresAt={status.tokenExpiresAt} label="Admission expires in" />
+                <CountdownTimer expiresAt={status.tokenExpiresAt} label="Thời gian giữ lượt vào" />
               )}
               <Button size="lg" className="w-full" onClick={() => router.push(`/booking/${eventId}`)}>
-                Enter Seat Selection
+                Vào chọn ghế ngay
               </Button>
             </div>
           ) : (
@@ -109,18 +109,18 @@ export default function WaitingRoomPage() {
               </div>
               <div className="grid grid-cols-2 gap-4 rounded-xl bg-slate-50 p-4 text-sm">
                 <div>
-                  <p className="text-slate-500">People Waiting</p>
+                  <p className="text-slate-500">Số người đang chờ</p>
                   <p className="mt-1 flex items-center justify-center gap-1 font-semibold">
                     <Users className="h-4 w-4 text-indigo-600" /> {status.totalWaiting}
                   </p>
                 </div>
                 <div>
-                  <p className="text-slate-500">Estimated Wait</p>
-                  <p className="mt-1 font-semibold">~{status.estimatedWaitSeconds}s</p>
+                  <p className="text-slate-500">Thời gian chờ dự kiến</p>
+                  <p className="mt-1 font-semibold">~{status.estimatedWaitSeconds} giây</p>
                 </div>
               </div>
               <Button variant="outline" onClick={handleLeave}>
-                Leave Queue
+                Rời khỏi hàng chờ
               </Button>
             </div>
           )}
