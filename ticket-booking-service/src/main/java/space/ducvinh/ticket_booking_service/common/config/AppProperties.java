@@ -17,6 +17,7 @@ public class AppProperties {
     private Payment payment = new Payment();
     private Storage storage = new Storage();
     private RateLimit rateLimit = new RateLimit();
+    private Seed seed = new Seed();
 
     @Getter
     @Setter
@@ -75,6 +76,12 @@ public class AppProperties {
     @Getter
     @Setter
     public static class RateLimit {
+        private boolean enabled = true;
+    }
+
+    @Getter
+    @Setter
+    public static class Seed {
         private boolean enabled = true;
     }
 }

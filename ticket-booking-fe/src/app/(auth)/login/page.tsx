@@ -27,8 +27,14 @@ export default function LoginPage() {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<LoginForm>({ resolver: zodResolver(loginSchema) });
+
+  const fillDemo = (email: string) => {
+    setValue("email", email, { shouldValidate: true });
+    setValue("password", "FlashTix@2026", { shouldValidate: true });
+  };
 
   const onSubmit = async (values: LoginForm) => {
     setErrorMsg("");
@@ -88,6 +94,33 @@ export default function LoginPage() {
               Create one
             </Link>
           </p>
+        </CardContent>
+      </Card>
+
+      <Card className="mt-4">
+        <CardContent className="space-y-2.5 pt-4 text-xs text-slate-600">
+          <div className="flex items-center justify-between">
+            <span className="font-semibold text-slate-800">Pre-seeded Demo Accounts</span>
+            <span className="font-mono text-[11px] text-slate-500">Password: FlashTix@2026</span>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            {[
+              { label: "Customer (An)", email: "buyer@flashtix.vn" },
+              { label: "Organizer", email: "organizer@flashtix.vn" },
+              { label: "Check-in Staff", email: "staff@flashtix.vn" },
+              { label: "Admin", email: "admin@flashtix.vn" },
+            ].map((acc) => (
+              <button
+                key={acc.email}
+                type="button"
+                onClick={() => fillDemo(acc.email)}
+                className="rounded-lg border border-slate-200 px-2.5 py-1.5 text-left transition hover:border-indigo-400 hover:bg-indigo-50"
+              >
+                <div className="font-medium text-slate-800">{acc.label}</div>
+                <div className="truncate text-[11px] text-slate-500">{acc.email}</div>
+              </button>
+            ))}
+          </div>
         </CardContent>
       </Card>
     </div>

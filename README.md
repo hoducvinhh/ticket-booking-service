@@ -160,6 +160,17 @@ docker compose --profile monitoring up -d --build
 | **Prometheus UI** (`monitoring` profile) | http://localhost:9090 |
 | **Grafana UI** (`monitoring` profile) | http://localhost:3001 (`admin` / `admin`) |
 
+### Pre-seeded Demo Data & Accounts
+On first startup against an empty database (`app.seed.enabled=true`), `DemoDataSeeder` populates 4 Vietnamese venues, 6 events (Music, Tech, Sports, Theater — including Waiting Room, General Admission, `SALES_CLOSED`, and `COMPLETED`), seat maps with `AVAILABLE`/`HELD`/`SOLD`/`BLOCKED` seats, orders (`PAID`, `PENDING_PAYMENT`, `REFUND_PENDING`, `REFUNDED`, `EXPIRED`), cryptographically signed QR tickets, check-in logs, notifications, and audit logs.
+
+| Role | Email | Password |
+|---|---|---|
+| `CUSTOMER` | `buyer@flashtix.vn` | `FlashTix@2026` |
+| `CUSTOMER` | `linh.tran@flashtix.vn` | `FlashTix@2026` |
+| `ORGANIZER` | `organizer@flashtix.vn` | `FlashTix@2026` |
+| `CHECKIN_STAFF` | `staff@flashtix.vn` | `FlashTix@2026` |
+| `ADMIN` | `admin@flashtix.vn` | `FlashTix@2026` |
+
 ---
 
 ## 7. Environment Configuration
